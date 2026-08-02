@@ -10,11 +10,11 @@ const $ = s => document.querySelector(s);
    그 사람 이름을 오른쪽에 넣어 주세요. 로그인하면
    작성자가 자동으로 선택되고 바뀌지 않게 고정됩니다.  */
 const FAMILY_BY_EMAIL = {
-  'mom@example.com': '엄마',
-  'dad@example.com': '아빠',
-  'gahyun@example.com': '가현',
-  'jiyong@example.com': '지용',
-  'younghyun@example.com': '영현',
+  'ruthkimkr7@gmail.com': '엄마',
+  'ypark1416@gmail.com': '아빠',
+  'pgh.toto@gmail.com': '가현',
+  'halona032@gmail.com': '지용',
+  'yeonghyeon4321@gmail.com': '영현',
 };
 
 function applyAuthorLock(session){
