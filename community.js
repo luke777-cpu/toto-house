@@ -16,6 +16,7 @@ function openWriter(e){ lastTrigger=e?.currentTarget||null; modal.hidden=false; 
 function closeWriter(){ modal.hidden=true; document.body.classList.remove('modal-open'); setStatus(''); lastTrigger?.focus?.(); }
 $("#openWriter")?.addEventListener('click',openWriter);
 $("#openWriterInline")?.addEventListener('click',openWriter);
+$("#openWriterHero")?.addEventListener('click',openWriter);
 $("#closeWriter")?.addEventListener('click',closeWriter);
 modal?.addEventListener('click',e=>{if(e.target===modal) closeWriter();});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&modal&&!modal.hidden) closeWriter();});

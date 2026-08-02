@@ -26,15 +26,20 @@
   </header>
 
   <main id="home">
-    <section class="hero">
-      <img src="images/toto-walk.webp" alt="초록빛 산책길에서 쉬고 있는 토토와 가족" fetchpriority="high">
+    <section class="hero hero-slider" id="heroSlider">
+      <div class="hero-slides" id="heroSlides"></div>
       <div class="hero-shade"></div>
       <div class="hero-copy">
-        <p class="eyebrow">A quiet life in the mountains</p>
-        <h1>토토의 집</h1>
-        <p>제주에서 열 해를 살고,<br>깊은 산골에 새 둥지를 틀었습니다.</p>
-        <a class="hero-button" href="#story">우리 이야기 보기 <span>↓</span></a>
+        <h1>우리 가족 이야기</h1>
+        <p>함께한 순간을 기록하고 오래도록 간직하는 가족 공간입니다.</p>
+        <div class="hero-actions">
+          <a class="hero-button" href="#community">가족 게시판 보기</a>
+          <button class="hero-button hero-button-solid" id="openWriterHero" type="button">새 글 쓰기</button>
+        </div>
       </div>
+      <button class="hero-arrow hero-prev" id="heroPrev" type="button" aria-label="이전 사진">‹</button>
+      <button class="hero-arrow hero-next" id="heroNext" type="button" aria-label="다음 사진">›</button>
+      <div class="hero-dots" id="heroDots" role="tablist" aria-label="대표 사진 선택"></div>
     </section>
 
     <section class="ticker" aria-label="토토 한 줄 소개">
@@ -181,6 +186,6 @@
   </footer>
 
   <script src="script.js"></script>
-  <script type="module" src="community.js?v=20260802"></script>
+  <script type="module" src="community.js?v=20260802b"></script>
 </body>
 </html>

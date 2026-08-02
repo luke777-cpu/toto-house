@@ -69,22 +69,32 @@ button { font: inherit; }
 
 .hero {
   position: relative;
-  min-height: 92vh;
+  min-height: 86vh;
+  min-height: min(86vh, 86dvh);
   overflow: hidden;
   border-radius: 0 0 46px 46px;
 }
-.hero img { position: absolute; inset: 0; height: 100%; object-fit: cover; object-position: 50% 38%; }
-.hero-shade {
+.hero-slides { position: absolute; inset: 0; background: linear-gradient(135deg, var(--accent-soft), var(--accent)); }
+.hero-slide {
   position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover; object-position: 50% 38%;
+  opacity: 0;
+  transition: opacity 1.1s ease;
+}
+.hero-slide.active { opacity: 1; }
+.hero-slide.slide-fallback { visibility: hidden; }
+.hero-shade {
+  position: absolute; inset: 0; z-index: 1;
   background: linear-gradient(90deg, rgba(10,21,14,.72) 0%, rgba(10,21,14,.28) 52%, rgba(10,21,14,.08) 100%),
-              linear-gradient(0deg, rgba(10,21,14,.45) 0%, transparent 40%);
+              linear-gradient(0deg, rgba(10,21,14,.5) 0%, transparent 45%);
 }
 .hero-copy {
   position: relative;
   z-index: 2;
   width: min(92%, 1080px);
   margin: 0 auto;
-  padding-top: clamp(190px, 28vh, 300px);
+  padding-top: clamp(170px, 26vh, 280px);
   color: white;
 }
 .eyebrow, .kicker {
@@ -94,26 +104,64 @@ button { font: inherit; }
 .hero h1 {
   margin: 0;
   font-family: "Gowun Batang", serif;
-  font-size: clamp(64px, 10vw, 126px);
-  line-height: .95;
-  letter-spacing: -.07em;
+  font-size: clamp(42px, 7vw, 78px);
+  line-height: 1.15;
+  letter-spacing: -.05em;
 }
-.hero-copy > p:not(.eyebrow) {
-  margin: 26px 0 30px;
+.hero-copy > p {
+  margin: 22px 0 30px;
+  max-width: 560px;
   font-family: "Gowun Batang", serif;
-  font-size: clamp(19px, 2.5vw, 28px);
-  line-height: 1.55;
+  font-size: clamp(17px, 2.2vw, 24px);
+  line-height: 1.6;
 }
+.hero-actions { display: flex; flex-wrap: wrap; gap: 12px; }
 .hero-button {
-  display: inline-flex; align-items: center; gap: 16px;
-  padding: 12px 18px;
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 13px 22px;
   border: 1px solid rgba(255,255,255,.5);
   border-radius: 999px;
   background: rgba(255,255,255,.13);
   backdrop-filter: blur(10px);
+  color: white;
   font-size: 14px; font-weight: 700;
+  cursor: pointer;
 }
-.hero-button span { font-size: 20px; }
+.hero-button-solid { background: var(--accent); border-color: transparent; }
+.hero-button:hover { background: rgba(255,255,255,.24); }
+.hero-button-solid:hover { background: var(--accent); opacity: .9; }
+
+.hero-arrow {
+  position: absolute; z-index: 3; top: 50%;
+  transform: translateY(-50%);
+  width: 46px; height: 46px;
+  border: 1px solid rgba(255,255,255,.4);
+  border-radius: 50%;
+  display: grid; place-items: center;
+  background: rgba(10,21,14,.32);
+  backdrop-filter: blur(8px);
+  color: white; font-size: 26px; line-height: 1;
+  cursor: pointer;
+  transition: background .2s;
+}
+.hero-arrow:hover { background: rgba(10,21,14,.55); }
+.hero-prev { left: 18px; }
+.hero-next { right: 18px; }
+
+.hero-dots {
+  position: absolute; z-index: 3;
+  left: 50%; bottom: 26px;
+  transform: translateX(-50%);
+  display: flex; gap: 10px;
+}
+.hero-dot {
+  width: 10px; height: 10px;
+  padding: 0; border: 0; border-radius: 50%;
+  background: rgba(255,255,255,.45);
+  cursor: pointer;
+  transition: transform .2s, background .2s;
+}
+.hero-dot.active { background: white; transform: scale(1.35); }
 
 .ticker { overflow: hidden; border-bottom: 1px solid var(--line); }
 .ticker div {
@@ -241,9 +289,13 @@ footer p { margin: 5px 0 0; }
 @media (max-width: 760px) {
   .topbar { grid-template-columns: 1fr auto; top: 10px; }
   .nav { display: none; }
-  .hero { min-height: 82vh; border-radius: 0 0 28px 28px; }
-  .hero img { object-position: 38% center; }
-  .hero-copy { padding-top: 180px; }
+  .hero { min-height: 68vh; min-height: min(68vh, 68dvh); border-radius: 0 0 28px 28px; }
+  .hero-slide { object-position: 38% center; }
+  .hero-copy { padding-top: 150px; }
+  .hero-arrow { width: 40px; height: 40px; font-size: 22px; }
+  .hero-prev { left: 10px; }
+  .hero-next { right: 10px; }
+  .hero-dots { bottom: 18px; }
   .intro, .profile-grid, .memory { grid-template-columns: 1fr; }
   .section { padding: 82px 0; }
   .intro { gap: 12px; }
