@@ -4,6 +4,30 @@ import { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY } from "./config.js";
 const configured = !SUPABASE_URL.startsWith("YOUR_") && !SUPABASE_PUBLISHABLE_KEY.startsWith("YOUR_");
 const supabase = configured ? createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY) : null;
 const $ = s => document.querySelector(s);
+
+/* ── 가족 계정 매핑 ───────────────────────────────────
+   Supabase에 등록한 가족 각자의 이메일을 왼쪽에,
+   그 사람 이름을 오른쪽에 넣어 주세요. 로그인하면
+   작성자가 자동으로 선택되고 바뀌지 않게 고정됩니다.  */
+const FAMILY_BY_EMAIL = {
+  'mom@example.com': '엄마',
+  'dad@example.com': '아빠',
+  'gahyun@example.com': '가현',
+  'jiyong@example.com': '지용',
+  'younghyun@example.com': '영현',
+};
+
+function applyAuthorLock(session){
+  const select=$("#postForm select[name=author_name]"); if(!select) return;
+  const hint=$("#authorLockHint");
+  const matched=session?FAMILY_BY_EMAIL[session.user.email]:null;
+  if(matched){ select.value=matched; select.dataset.lockedName=matched; select.classList.add('locked'); if(hint) hint.hidden=false; }
+  else { delete select.dataset.lockedName; select.classList.remove('locked'); if(hint) hint.hidden=true; }
+}
+document.querySelector("#postForm select[name=author_name]")?.addEventListener('change',e=>{
+  const sel=e.currentTarget; const locked=sel.dataset.lockedName;
+  if(locked && sel.value!==locked) sel.value=locked;
+});
 const feed = $("#communityFeed");
 const modal = $("#writerModal");
 const status = $("#communityStatus");
@@ -26,6 +50,7 @@ async function refreshSession(){
   const {data:{session}}=await supabase.auth.getSession();
   $("#loginPanel").hidden=!!session; $("#editorPanel").hidden=!session;
   $("#authStatus").textContent=session?session.user.email:'가족 계정으로 로그인해 주세요.';
+  applyAuthorLock(session);
 }
 
 $("#loginForm")?.addEventListener('submit',async e=>{
