@@ -29,10 +29,10 @@ async function refreshSession(){
 
 $("#loginForm")?.addEventListener('submit',async e=>{
   e.preventDefault(); if(!supabase){setStatus('config.js 설정이 필요합니다.','error');return;}
-  const f=new FormData(e.currentTarget); setStatus('로그인 중…');
+  const form=e.currentTarget; const f=new FormData(form); setStatus('로그인 중…');
   const {error}=await supabase.auth.signInWithPassword({email:f.get('email'),password:f.get('password')});
   if(error){setStatus('이메일 또는 비밀번호를 확인해 주세요.','error');return;}
-  e.currentTarget.reset(); setStatus('로그인했습니다.','success'); refreshSession();
+  form.reset(); setStatus('로그인했습니다.','success'); refreshSession();
 });
 
 $("#logoutButton")?.addEventListener('click',async()=>{await supabase?.auth.signOut(); refreshSession();});
@@ -52,14 +52,15 @@ async function compress(file){
 }
 
 $("#postForm")?.addEventListener('submit',async e=>{
-  e.preventDefault(); const btn=e.currentTarget.querySelector('button[type=submit]'); btn.disabled=true; btn.textContent='게시 중입니다…'; setStatus('게시 중입니다…');
+  e.preventDefault(); const form=e.currentTarget; const f=new FormData(form);
+  const btn=form.querySelector('button[type=submit]'); btn.disabled=true; btn.textContent='게시 중입니다…'; setStatus('게시 중입니다…');
   try{
     const {data:{user}}=await supabase.auth.getUser(); if(!user) throw new Error('로그인이 필요합니다.');
-    const f=new FormData(e.currentTarget); const file=f.get('image'); let image_path=null;
+    const file=f.get('image'); let image_path=null;
     if(file?.size){ const blob=await compress(file); image_path=`${user.id}/${crypto.randomUUID()}.webp`;
       const {error}=await supabase.storage.from('toto-photos').upload(image_path,blob,{contentType:'image/webp'}); if(error) throw error; }
     const {error}=await supabase.from('toto_posts').insert({author_id:user.id,author_name:f.get('author_name'),title:f.get('title'),body:f.get('body'),image_path});
-    if(error) throw error; e.currentTarget.reset(); $("#imagePreview").hidden=true; $("#fileName").hidden=true; $("#fileTriggerText").textContent='사진 선택 또는 촬영'; setStatus('게시되었습니다.','success'); await loadPosts(); setTimeout(closeWriter,600);
+    if(error) throw error; form.reset(); $("#imagePreview").hidden=true; $("#fileName").hidden=true; $("#fileTriggerText").textContent='사진 선택 또는 촬영'; setStatus('게시되었습니다.','success'); await loadPosts(); setTimeout(closeWriter,600);
   }catch(err){console.error(err);setStatus(err.message||'게시하지 못했습니다.','error');}finally{btn.disabled=false; btn.textContent='게시하기';}
 });
 
