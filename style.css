@@ -447,7 +447,22 @@ footer p { margin: 5px 0 0; }
   background-image:none;
 }
 
-/* ── 사진 선택 ── */
+.google-button{
+  display:flex; align-items:center; justify-content:center; gap:10px;
+  width:100%; min-height:48px;
+  border:1px solid var(--line); border-radius:14px;
+  background:var(--surface); color:var(--text);
+  font-size:15px; font-weight:700;
+  cursor:pointer;
+  margin-top:24px;
+}
+.google-button:hover{background:var(--accent-soft)}
+.form-divider{
+  display:flex; align-items:center; gap:12px;
+  margin:18px 0 -4px;
+  color:var(--muted); font-size:12px;
+}
+.form-divider::before,.form-divider::after{content:"";flex:1;height:1px;background:var(--line)}
 .file-trigger{
   display:flex; align-items:center; justify-content:center; gap:8px;
   min-height:48px;

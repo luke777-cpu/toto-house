@@ -53,6 +53,13 @@ async function refreshSession(){
   applyAuthorLock(session);
 }
 
+$("#googleLoginButton")?.addEventListener('click',async()=>{
+  if(!supabase){setStatus('config.js 설정이 필요합니다.','error');return;}
+  sessionStorage.setItem('toto-reopen-writer','1');
+  const {error}=await supabase.auth.signInWithOAuth({provider:'google',options:{redirectTo:location.href.split('#')[0]}});
+  if(error) setStatus('Google 로그인을 시작하지 못했습니다.','error');
+});
+
 $("#loginForm")?.addEventListener('submit',async e=>{
   e.preventDefault(); if(!supabase){setStatus('config.js 설정이 필요합니다.','error');return;}
   const form=e.currentTarget; const f=new FormData(form); setStatus('로그인 중…');
@@ -114,3 +121,4 @@ async function loadPosts(){
 }
 if(supabase) supabase.auth.onAuthStateChange(()=>{refreshSession();loadPosts();});
 loadPosts();
+if(sessionStorage.getItem('toto-reopen-writer')){ sessionStorage.removeItem('toto-reopen-writer'); openWriter(); }
