@@ -117,10 +117,58 @@
   <div class="writer-modal" id="writerModal" hidden>
     <section class="writer-card" role="dialog" aria-modal="true" aria-labelledby="writerTitle">
       <button class="modal-close" id="closeWriter" type="button" aria-label="닫기">×</button>
-      <div class="writer-head"><p class="kicker">FAMILY ONLY</p><h2 id="writerTitle">토토의 집에<br>새 이야기 올리기</h2><p id="authStatus">가족 계정으로 로그인해 주세요.</p></div>
-      <div id="loginPanel"><form class="writer-form" id="loginForm"><label>이메일<input name="email" type="email" autocomplete="email" required></label><label>비밀번호<input name="password" type="password" autocomplete="current-password" required></label><button class="primary-button" type="submit">로그인</button></form></div>
-      <div id="editorPanel" hidden><form class="writer-form" id="postForm"><label>작성자<select name="author_name" required><option value="">이름 선택</option><option>엄마</option><option>아빠</option><option>가현</option><option>지용</option><option>영현</option></select></label><label>사진<input id="postImage" name="image" type="file" accept="image/*" capture="environment"></label><img class="image-preview" id="imagePreview" alt="선택한 사진 미리보기" hidden><label>제목<input name="title" maxlength="80" placeholder="오늘 아침 산책" required></label><label>이야기<textarea name="body" maxlength="2000" rows="6" placeholder="토토의 오늘을 적어 주세요." required></textarea></label><button class="primary-button" type="submit">게시하기</button><button class="text-button" id="logoutButton" type="button">로그아웃</button></form></div>
-      <p class="community-status" id="communityStatus"></p>
+      <div class="writer-scroll">
+        <div class="writer-head">
+          <p class="kicker">FAMILY ONLY</p>
+          <h2 id="writerTitle">토토의 집에<br>새 이야기 올리기</h2>
+        </div>
+
+        <div class="account-box">
+          <span class="account-label">로그인 계정</span>
+          <strong id="authStatus">가족 계정으로 로그인해 주세요.</strong>
+        </div>
+
+        <div id="loginPanel">
+          <form class="writer-form" id="loginForm">
+            <label><span class="field-label">이메일</span><input name="email" type="email" autocomplete="email" required></label>
+            <label><span class="field-label">비밀번호</span><input name="password" type="password" autocomplete="current-password" required></label>
+            <button class="primary-button" type="submit">로그인</button>
+          </form>
+        </div>
+
+        <div id="editorPanel" hidden>
+          <form class="writer-form" id="postForm">
+            <label><span class="field-label">작성자</span>
+              <select name="author_name" required>
+                <option value="">이름 선택</option>
+                <option>엄마</option>
+                <option>아빠</option>
+                <option>가현</option>
+                <option>지용</option>
+                <option>영현</option>
+              </select>
+            </label>
+
+            <div class="photo-field">
+              <span class="field-label" id="photoFieldLabel">사진</span>
+              <label class="file-trigger">
+                <input id="postImage" name="image" type="file" accept="image/*" capture="environment" aria-labelledby="photoFieldLabel">
+                <span class="file-trigger-text" id="fileTriggerText">사진 선택 또는 촬영</span>
+              </label>
+              <p class="file-name" id="fileName" hidden></p>
+              <img class="image-preview" id="imagePreview" alt="선택한 사진 미리보기" hidden>
+            </div>
+
+            <label><span class="field-label">제목</span><input name="title" maxlength="80" placeholder="오늘 아침 산책" required></label>
+            <label><span class="field-label">이야기</span><textarea name="body" maxlength="2000" rows="6" placeholder="토토의 오늘을 적어 주세요." required></textarea></label>
+
+            <button class="primary-button" type="submit">게시하기</button>
+            <button class="text-button" id="logoutButton" type="button">로그아웃</button>
+          </form>
+        </div>
+
+        <p class="community-status" id="communityStatus" aria-live="polite"></p>
+      </div>
     </section>
   </div>
 

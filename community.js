@@ -10,19 +10,21 @@ const status = $("#communityStatus");
 const esc = (v="") => v.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
 const dateText = v => new Intl.DateTimeFormat('ko-KR',{year:'numeric',month:'long',day:'numeric'}).format(new Date(v));
 
+let lastTrigger=null;
 function setStatus(msg, type=''){ status.textContent=msg; status.className=`community-status ${type}`; }
-function openWriter(){ modal.hidden=false; document.body.classList.add('modal-open'); refreshSession(); }
-function closeWriter(){ modal.hidden=true; document.body.classList.remove('modal-open'); setStatus(''); }
+function openWriter(e){ lastTrigger=e?.currentTarget||null; modal.hidden=false; document.body.classList.add('modal-open'); refreshSession().then(()=>{ const panel=$("#loginPanel").hidden?$("#editorPanel"):$("#loginPanel"); panel?.querySelector('select,input')?.focus({preventScroll:true}); }); }
+function closeWriter(){ modal.hidden=true; document.body.classList.remove('modal-open'); setStatus(''); lastTrigger?.focus?.(); }
 $("#openWriter")?.addEventListener('click',openWriter);
 $("#openWriterInline")?.addEventListener('click',openWriter);
 $("#closeWriter")?.addEventListener('click',closeWriter);
 modal?.addEventListener('click',e=>{if(e.target===modal) closeWriter();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&modal&&!modal.hidden) closeWriter();});
 
 async function refreshSession(){
   if(!configured){ $("#loginPanel").hidden=false; $("#editorPanel").hidden=true; $("#authStatus").textContent='Supabase 연결 전입니다.'; return; }
   const {data:{session}}=await supabase.auth.getSession();
   $("#loginPanel").hidden=!!session; $("#editorPanel").hidden=!session;
-  $("#authStatus").textContent=session?`${session.user.email} 계정으로 로그인했습니다.`:'가족 계정으로 로그인해 주세요.';
+  $("#authStatus").textContent=session?session.user.email:'가족 계정으로 로그인해 주세요.';
 }
 
 $("#loginForm")?.addEventListener('submit',async e=>{
@@ -34,7 +36,13 @@ $("#loginForm")?.addEventListener('submit',async e=>{
 });
 
 $("#logoutButton")?.addEventListener('click',async()=>{await supabase?.auth.signOut(); refreshSession();});
-$("#postImage")?.addEventListener('change',e=>{const f=e.target.files?.[0]; const p=$("#imagePreview"); if(!f){p.hidden=true;return;} p.src=URL.createObjectURL(f); p.hidden=false;});
+$("#postImage")?.addEventListener('change',e=>{
+  const f=e.target.files?.[0]; const p=$("#imagePreview"); const n=$("#fileName"); const t=$("#fileTriggerText");
+  if(!f){p.hidden=true; n.hidden=true; t.textContent='사진 선택 또는 촬영'; return;}
+  p.src=URL.createObjectURL(f); p.hidden=false;
+  n.textContent=f.name; n.hidden=false;
+  t.textContent='다른 사진 선택';
+});
 
 async function compress(file){
   const bmp=await createImageBitmap(file); const max=1800; const scale=Math.min(1,max/Math.max(bmp.width,bmp.height));
@@ -44,15 +52,15 @@ async function compress(file){
 }
 
 $("#postForm")?.addEventListener('submit',async e=>{
-  e.preventDefault(); const btn=e.currentTarget.querySelector('button[type=submit]'); btn.disabled=true; setStatus('게시 중…');
+  e.preventDefault(); const btn=e.currentTarget.querySelector('button[type=submit]'); btn.disabled=true; btn.textContent='게시 중입니다…'; setStatus('게시 중입니다…');
   try{
     const {data:{user}}=await supabase.auth.getUser(); if(!user) throw new Error('로그인이 필요합니다.');
     const f=new FormData(e.currentTarget); const file=f.get('image'); let image_path=null;
     if(file?.size){ const blob=await compress(file); image_path=`${user.id}/${crypto.randomUUID()}.webp`;
       const {error}=await supabase.storage.from('toto-photos').upload(image_path,blob,{contentType:'image/webp'}); if(error) throw error; }
     const {error}=await supabase.from('toto_posts').insert({author_id:user.id,author_name:f.get('author_name'),title:f.get('title'),body:f.get('body'),image_path});
-    if(error) throw error; e.currentTarget.reset(); $("#imagePreview").hidden=true; setStatus('게시되었습니다.','success'); await loadPosts(); setTimeout(closeWriter,600);
-  }catch(err){console.error(err);setStatus(err.message||'게시하지 못했습니다.','error');}finally{btn.disabled=false;}
+    if(error) throw error; e.currentTarget.reset(); $("#imagePreview").hidden=true; $("#fileName").hidden=true; $("#fileTriggerText").textContent='사진 선택 또는 촬영'; setStatus('게시되었습니다.','success'); await loadPosts(); setTimeout(closeWriter,600);
+  }catch(err){console.error(err);setStatus(err.message||'게시하지 못했습니다.','error');}finally{btn.disabled=false; btn.textContent='게시하기';}
 });
 
 async function removePost(post){
