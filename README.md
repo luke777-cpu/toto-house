@@ -1,19 +1,14 @@
-# 토토의 집
+# 토토의 집 v2 — 가족 글쓰기
 
-GitHub Pages용 정적 홈페이지입니다.
+가족 로그인, 사진 업로드, 글 게시, 본인 글 삭제 기능이 포함된 버전입니다.
 
-## 게시 방법
-1. 압축을 풉니다.
-2. `luke777-cpu/toto-house` 저장소의 루트에 모든 파일과 `images` 폴더를 업로드합니다.
-3. GitHub 저장소에서 `Settings → Pages`로 이동합니다.
-4. `Deploy from a branch`를 선택합니다.
-5. Branch는 `main`, 폴더는 `/(root)`를 선택하고 저장합니다.
-6. 잠시 뒤 아래 주소에서 열립니다.
+## 연결 순서
+1. Supabase에서 새 프로젝트를 만듭니다.
+2. SQL Editor에서 `supabase-setup.sql` 전체를 실행합니다.
+3. Authentication → Users에서 가족 계정을 만듭니다.
+4. Project Settings → API에서 Project URL과 Publishable key를 확인합니다.
+5. `config.js`의 두 값을 바꿉니다.
+6. 모든 파일을 `luke777-cpu/toto-house` 저장소에 올립니다.
 
-https://luke777-cpu.github.io/toto-house/
-
-## 파일 구조
-- index.html
-- style.css
-- script.js
-- images/
+## 보안
+브라우저에는 Publishable key만 넣습니다. Secret key 또는 service_role 키는 절대 넣지 마세요.

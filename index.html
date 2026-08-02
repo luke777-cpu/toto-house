@@ -22,7 +22,7 @@
       <a href="#family">가족</a>
       <a href="#gallery">사진</a>
     </nav>
-    <button class="theme-toggle" id="themeToggle" type="button" aria-label="화면 테마 바꾸기">◐</button>
+    <div class="top-actions"><button class="write-button" id="openWriter" type="button">가족 글쓰기</button><button class="theme-toggle" id="themeToggle" type="button" aria-label="화면 테마 바꾸기">◐</button></div>
   </header>
 
   <main id="home">
@@ -104,29 +104,25 @@
       </div>
     </section>
 
-    <section class="section notes">
-      <div class="section-heading reveal">
-        <p class="kicker">04 · 작은 기록</p>
-        <h2>토토네 오늘</h2>
+    <section class="section community" id="community">
+      <div class="community-title reveal">
+        <div><p class="kicker">04 · 가족의 새 이야기</p><h2>토토네 오늘</h2></div>
+        <button class="community-write" id="openWriterInline" type="button">＋ 새 이야기</button>
       </div>
-      <div class="note-feed">
-        <article class="note reveal">
-          <div class="avatar">T</div>
-          <div>
-            <div class="note-head"><strong>토토의 집</strong><span>오늘</span></div>
-            <p>아침 산책을 마치고 돌아오자마자 세상에서 가장 바쁜 개처럼 물을 마셨다. 그리고 곧바로 세상에서 가장 한가한 개가 되어 바닥에 누웠다.</p>
-          </div>
-        </article>
-        <article class="note reveal">
-          <div class="avatar">T</div>
-          <div>
-            <div class="note-head"><strong>토토의 집</strong><span>어느 날</span></div>
-            <p>산책길에서 만난 개에게 괜히 아는 척하다 엄마에게 혼이 났다. 토토는 못 들은 척 하늘을 보다가, 집에 와서는 간식을 요구했다.</p>
-          </div>
-        </article>
-      </div>
+      <div class="community-grid" id="communityFeed" aria-live="polite"></div>
     </section>
   </main>
+
+
+  <div class="writer-modal" id="writerModal" hidden>
+    <section class="writer-card" role="dialog" aria-modal="true" aria-labelledby="writerTitle">
+      <button class="modal-close" id="closeWriter" type="button" aria-label="닫기">×</button>
+      <div class="writer-head"><p class="kicker">FAMILY ONLY</p><h2 id="writerTitle">토토의 집에<br>새 이야기 올리기</h2><p id="authStatus">가족 계정으로 로그인해 주세요.</p></div>
+      <div id="loginPanel"><form class="writer-form" id="loginForm"><label>이메일<input name="email" type="email" autocomplete="email" required></label><label>비밀번호<input name="password" type="password" autocomplete="current-password" required></label><button class="primary-button" type="submit">로그인</button></form></div>
+      <div id="editorPanel" hidden><form class="writer-form" id="postForm"><label>작성자<select name="author_name" required><option value="">이름 선택</option><option>엄마</option><option>아빠</option><option>가현</option><option>지용</option><option>영현</option></select></label><label>사진<input id="postImage" name="image" type="file" accept="image/*" capture="environment"></label><img class="image-preview" id="imagePreview" alt="선택한 사진 미리보기" hidden><label>제목<input name="title" maxlength="80" placeholder="오늘 아침 산책" required></label><label>이야기<textarea name="body" maxlength="2000" rows="6" placeholder="토토의 오늘을 적어 주세요." required></textarea></label><button class="primary-button" type="submit">게시하기</button><button class="text-button" id="logoutButton" type="button">로그아웃</button></form></div>
+      <p class="community-status" id="communityStatus"></p>
+    </section>
+  </div>
 
   <footer>
     <div>
@@ -137,5 +133,6 @@
   </footer>
 
   <script src="script.js"></script>
+  <script type="module" src="community.js"></script>
 </body>
 </html>
