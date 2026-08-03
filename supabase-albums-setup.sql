@@ -112,6 +112,13 @@ create trigger album_photos_touch_album
 alter table public.albums enable row level security;
 alter table public.album_photos enable row level security;
 
+-- 테이블 자체 접근 권한 부여 (RLS는 "행" 단위 필터링만 하고, 이 GRANT가 있어야
+-- authenticated 역할이 테이블에 아예 접근할 수 있습니다. 이게 빠지면 403이 납니다.)
+grant usage on schema public to authenticated;
+grant select, insert, update, delete on public.albums to authenticated;
+grant select, insert, update, delete on public.album_photos to authenticated;
+grant select on public.app_admins to authenticated;
+
 -- 조회: 로그인한 가족만
 drop policy if exists "albums_select_authenticated" on public.albums;
 create policy "albums_select_authenticated"
