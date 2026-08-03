@@ -446,8 +446,11 @@ function handleUpload(fileList) {
 
 const dropzone = $("#uploadDropzone");
 const albumPhotoInput = $("#albumPhotoInput");
+const albumCameraInput = $("#albumCameraInput");
 dropzone?.addEventListener('click', () => albumPhotoInput?.click());
 albumPhotoInput?.addEventListener('change', e => { handleUpload(e.target.files); e.target.value = ''; });
+$("#cameraCaptureButton")?.addEventListener('click', () => albumCameraInput?.click());
+albumCameraInput?.addEventListener('change', e => { handleUpload(e.target.files); e.target.value = ''; });
 ['dragenter', 'dragover'].forEach(evt => dropzone?.addEventListener(evt, e => { e.preventDefault(); dropzone.classList.add('drag-over'); }));
 ['dragleave', 'drop'].forEach(evt => dropzone?.addEventListener(evt, e => { e.preventDefault(); dropzone.classList.remove('drag-over'); }));
 dropzone?.addEventListener('drop', e => handleUpload(e.dataTransfer.files));

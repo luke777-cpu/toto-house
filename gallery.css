@@ -60,6 +60,7 @@
 }
 .upload-dropzone.drag-over{ background:var(--accent-soft); border-color:var(--accent); }
 .upload-dropzone strong{ display:block; color:var(--text); font-size:15px; margin-bottom:4px; }
+#cameraCaptureButton{ display:block; margin:10px auto 0; }
 .upload-options{ display:flex; align-items:center; gap:8px; margin-top:12px; font-size:13px; color:var(--muted); }
 .upload-progress-wrap{ margin-top:14px; }
 .upload-progress-track{ height:8px; border-radius:999px; background:var(--accent-soft); overflow:hidden; }

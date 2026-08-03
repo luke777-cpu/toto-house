@@ -79,8 +79,10 @@
           <div class="upload-dropzone" id="uploadDropzone">
             <strong>사진을 여기로 끌어다 놓거나 눌러서 선택하세요</strong>
             <span>여러 장을 한 번에 선택할 수 있어요 · JPG, PNG, WEBP, HEIC 지원</span>
-            <input id="albumPhotoInput" type="file" accept=".jpg,.jpeg,.png,.webp,.heic,.heif,image/*" multiple capture="environment" hidden>
+            <input id="albumPhotoInput" type="file" accept=".jpg,.jpeg,.png,.webp,.heic,.heif,image/*" multiple hidden>
           </div>
+          <button class="text-button" id="cameraCaptureButton" type="button">📷 카메라로 바로 촬영</button>
+          <input id="albumCameraInput" type="file" accept="image/*" capture="environment" hidden>
           <label class="upload-options">
             <input type="checkbox" id="keepOriginalToggle">
             원본 화질로 보관 (용량이 커집니다. 기본은 약 2200px로 축소돼 저장됩니다)
