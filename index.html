@@ -10,6 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Pretendard:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="gallery.css">
 </head>
 <body>
   <header class="topbar">
@@ -21,6 +22,7 @@
       <a href="#story">이야기</a>
       <a href="#family">가족</a>
       <a href="#gallery">사진</a>
+      <a href="gallery.html">가족 앨범</a>
     </nav>
     <div class="top-actions"><button class="write-button" id="openWriter" type="button">가족 글쓰기</button><button class="theme-toggle" id="themeToggle" type="button" aria-label="화면 테마 바꾸기">◐</button></div>
   </header>
@@ -116,6 +118,14 @@
       </div>
       <div class="community-grid" id="communityFeed" aria-live="polite"></div>
     </section>
+    <section class="section albums-preview" id="albums">
+      <div class="community-title reveal">
+        <div><p class="kicker">05 · 가족 앨범</p><h2>추억을 모아두는 곳</h2></div>
+        <a class="community-write" href="gallery.html">앨범 전체 보기</a>
+      </div>
+      <div class="album-card-grid" id="recentAlbums" aria-live="polite"></div>
+      <div class="recent-photos-grid" id="recentPhotos" aria-live="polite"></div>
+    </section>
   </main>
 
 
@@ -193,5 +203,6 @@
 
   <script src="script.js"></script>
   <script type="module" src="community.js?v=20260802d"></script>
+  <script type="module" src="gallery.js?v=1"></script>
 </body>
 </html>

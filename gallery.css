@@ -1,0 +1,178 @@
+/* ══════════════════════════════════════════════════════
+   가족 앨범 전용 스타일 (index.html, gallery.html 공통)
+   ══════════════════════════════════════════════════════ */
+
+/* ── 로그인 게이트 ─────────────────────────────────────── */
+.gallery-auth-gate{
+  max-width:420px; margin:80px auto; padding:0 20px; text-align:center;
+}
+.gallery-auth-gate h1{ font-family:"Gowun Batang",serif; font-size:28px; margin:0 0 10px; }
+.gallery-auth-gate p{ color:var(--muted); margin:0 0 24px; }
+.gallery-auth-gate .writer-form{ text-align:left; }
+
+/* ── 앨범 목록 툴바 ────────────────────────────────────── */
+.gallery-toolbar{
+  display:flex; align-items:center; justify-content:space-between; gap:16px;
+  flex-wrap:wrap; margin:34px auto 26px; width:min(92%,1080px);
+}
+.gallery-toolbar h1{ font-family:"Gowun Batang",serif; font-size:32px; margin:0; }
+.gallery-account{ font-size:13px; color:var(--muted); display:flex; align-items:center; gap:10px; }
+
+/* ── 앨범 카드 그리드 ──────────────────────────────────── */
+.album-card-grid, #albumGrid{
+  display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:22px;
+  width:min(92%,1080px); margin:0 auto 60px;
+}
+.album-card{
+  display:block; text-decoration:none; color:inherit;
+  border:1px solid var(--line); border-radius:22px; overflow:hidden;
+  background:var(--surface); box-shadow:var(--shadow);
+  transition:transform .18s;
+}
+.album-card:hover{ transform:translateY(-3px); }
+.album-cover{ aspect-ratio:4/3; background:var(--accent-soft); overflow:hidden; }
+.album-cover img{ width:100%; height:100%; object-fit:cover; }
+.album-cover-empty{ width:100%; height:100%; display:grid; place-items:center; font-size:34px; opacity:.5; }
+.album-card-body{ padding:18px 20px 20px; }
+.album-card-body h3{ margin:0 0 6px; font-family:"Gowun Batang",serif; font-size:19px; }
+.album-card-meta{ margin:0; font-size:12px; color:var(--muted); font-weight:700; }
+.album-card-updated{ margin:4px 0 0; font-size:11px; color:var(--muted); }
+.album-preview-note{ color:var(--muted); font-size:13px; grid-column:1/-1; }
+
+/* ── 앨범 상세 헤더 ────────────────────────────────────── */
+.album-detail-header{ width:min(92%,1080px); margin:36px auto 24px; }
+.album-detail-header a.back-link{ font-size:13px; color:var(--muted); text-decoration:none; }
+.album-detail-header h1{ font-family:"Gowun Batang",serif; font-size:32px; margin:10px 0 6px; }
+.album-detail-header p{ margin:0 0 4px; color:var(--muted); }
+.album-detail-actions{ display:flex; gap:10px; flex-wrap:wrap; margin-top:16px; }
+.album-detail-actions button{
+  border:1px solid var(--line); border-radius:999px; background:var(--surface);
+  padding:8px 16px; font-size:12px; font-weight:700; cursor:pointer; color:var(--text);
+}
+.album-detail-actions button:hover{ background:var(--accent-soft); }
+
+/* ── 업로드 패널 ───────────────────────────────────────── */
+.upload-panel{ width:min(92%,1080px); margin:0 auto 30px; }
+.upload-dropzone{
+  border:2px dashed var(--line); border-radius:20px;
+  padding:32px 20px; text-align:center; cursor:pointer;
+  color:var(--muted); font-size:14px; transition:background .15s,border-color .15s;
+}
+.upload-dropzone.drag-over{ background:var(--accent-soft); border-color:var(--accent); }
+.upload-dropzone strong{ display:block; color:var(--text); font-size:15px; margin-bottom:4px; }
+.upload-options{ display:flex; align-items:center; gap:8px; margin-top:12px; font-size:13px; color:var(--muted); }
+.upload-progress-wrap{ margin-top:14px; }
+.upload-progress-track{ height:8px; border-radius:999px; background:var(--accent-soft); overflow:hidden; }
+.upload-progress-bar{ height:100%; width:0; background:var(--accent); transition:width .2s; }
+.upload-progress-label{ font-size:12px; color:var(--muted); margin-top:4px; display:block; }
+.upload-queue{ margin-top:14px; display:flex; flex-direction:column; gap:6px; max-height:200px; overflow-y:auto; }
+.upload-row{ display:flex; justify-content:space-between; gap:12px; font-size:13px; padding:6px 10px; border-radius:10px; background:var(--bg); }
+.upload-row-name{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.upload-row-state{ color:var(--muted); flex-shrink:0; }
+.upload-row-done .upload-row-state{ color:var(--accent); font-weight:700; }
+.upload-row-failed .upload-row-state{ color:#b13c3c; font-weight:700; }
+.upload-summary{ margin-top:10px; font-size:13px; color:var(--muted); }
+
+/* ── 선택/정렬 툴바 ────────────────────────────────────── */
+.selection-toolbar{
+  width:min(92%,1080px); margin:0 auto 14px;
+  display:flex; align-items:center; justify-content:space-between; gap:12px;
+}
+.selection-toolbar button{
+  border:0; border-radius:999px; padding:8px 16px; font-size:12px; font-weight:700; cursor:pointer;
+  background:#b13c3c; color:white;
+}
+.selection-count{ font-size:13px; color:var(--muted); }
+
+/* ── 사진 그리드 ───────────────────────────────────────── */
+.photo-grid{
+  display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:10px;
+  width:min(92%,1080px); margin:0 auto 40px;
+}
+.photo-tile{ position:relative; margin:0; aspect-ratio:1; border-radius:14px; overflow:hidden; background:var(--accent-soft); cursor:pointer; }
+.photo-tile img{ width:100%; height:100%; object-fit:cover; display:block; transition:transform .2s; }
+.photo-tile:hover img{ transform:scale(1.04); }
+.photo-tile figcaption{
+  position:absolute; left:0; right:0; bottom:0; padding:8px 10px;
+  font-size:11px; color:white; background:linear-gradient(0deg,rgba(0,0,0,.6),transparent);
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+.photo-select{ position:absolute; top:8px; left:8px; z-index:2; display:none; }
+.gallery-select-mode .photo-select{ display:block; }
+.photo-select input{ width:20px; height:20px; }
+.reorder-mode .photo-tile{ cursor:grab; }
+.reorder-mode .photo-tile.sortable-ghost{ opacity:.3; }
+#loadMoreSentinel{ height:1px; width:min(92%,1080px); margin:0 auto; }
+
+/* ── 최근 사진(홈) ─────────────────────────────────────── */
+.recent-photos-grid{
+  display:grid; grid-template-columns:repeat(6,1fr); gap:10px;
+  width:min(92%,1080px); margin:26px auto 0;
+}
+.recent-photo-tile{ display:block; aspect-ratio:1; border-radius:12px; overflow:hidden; }
+.recent-photo-tile img{ width:100%; height:100%; object-fit:cover; }
+
+/* ── 앨범 만들기/수정 모달 ─────────────────────────────── */
+#albumModal{
+  position:fixed; inset:0; z-index:100; padding:24px;
+  display:grid; place-items:center;
+  background:rgba(10,15,11,.58); backdrop-filter:blur(12px);
+}
+#albumModal[hidden]{ display:none; }
+.album-modal-card{
+  position:relative; width:min(100%,520px); max-height:90vh; max-height:min(90vh,90dvh);
+  overflow-y:auto; border-radius:26px; padding:32px;
+  background:var(--surface); color:var(--text); box-shadow:0 35px 120px rgba(0,0,0,.32);
+}
+.album-modal-card h2{ font-family:"Gowun Batang",serif; font-size:26px; margin:0 0 20px; }
+.album-date-row{ display:flex; gap:12px; }
+.album-date-row label{ flex:1; }
+#albumCoverPreview{ width:100%; max-height:180px; object-fit:cover; border-radius:14px; margin-top:10px; }
+
+/* ── 라이트박스 ────────────────────────────────────────── */
+#lightbox{
+  position:fixed; inset:0; z-index:200;
+  background:rgba(6,10,7,.94);
+  display:flex; flex-direction:column;
+}
+#lightbox[hidden]{ display:none; }
+.lightbox-stage{ flex:1; display:flex; align-items:center; justify-content:center; position:relative; min-height:0; }
+.lightbox-stage img{ max-width:92%; max-height:80vh; max-height:80dvh; object-fit:contain; border-radius:10px; }
+.lightbox-close{
+  position:absolute; top:16px; right:16px; z-index:2;
+  width:42px; height:42px; border-radius:50%; border:1px solid rgba(255,255,255,.35);
+  background:rgba(0,0,0,.35); color:white; font-size:22px; cursor:pointer;
+}
+.lightbox-counter{ position:absolute; top:20px; left:20px; color:white; font-size:13px; opacity:.8; }
+.lightbox-arrow{
+  position:absolute; top:50%; transform:translateY(-50%);
+  width:48px; height:48px; border-radius:50%; border:1px solid rgba(255,255,255,.35);
+  background:rgba(0,0,0,.35); color:white; font-size:26px; cursor:pointer;
+}
+.lightbox-prev{ left:14px; } .lightbox-next{ right:14px; }
+.lightbox-info{
+  padding:16px 24px calc(20px + env(safe-area-inset-bottom));
+  color:white; background:rgba(0,0,0,.35);
+}
+.lightbox-info p{ margin:0 0 4px; font-size:14px; }
+.lightbox-info time{ font-size:12px; opacity:.7; }
+.lightbox-toolbar{ display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; }
+.lightbox-toolbar button{
+  border:1px solid rgba(255,255,255,.35); background:rgba(255,255,255,.08); color:white;
+  border-radius:999px; padding:7px 14px; font-size:12px; cursor:pointer;
+}
+.lightbox-toolbar button.danger{ background:rgba(177,60,60,.35); border-color:rgba(177,60,60,.6); }
+.lightbox-edit-panel{ margin-top:14px; display:flex; flex-direction:column; gap:10px; }
+.lightbox-edit-panel input[type=text],
+.lightbox-edit-panel input[type=date]{
+  width:100%; padding:9px 12px; border-radius:10px; border:1px solid rgba(255,255,255,.3);
+  background:rgba(255,255,255,.08); color:white; font-size:14px;
+}
+.lightbox-edit-panel label.checkbox-row{ display:flex; align-items:center; gap:8px; font-size:13px; color:white; }
+
+@media(max-width:760px){
+  .recent-photos-grid{ grid-template-columns:repeat(3,1fr); }
+  .photo-grid{ grid-template-columns:repeat(auto-fill,minmax(110px,1fr)); }
+  .album-card-grid, #albumGrid{ grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); }
+  .lightbox-arrow{ width:38px; height:38px; font-size:20px; }
+}

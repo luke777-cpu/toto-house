@@ -1,21 +1,11 @@
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
-import { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY } from "./config.js";
+import { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, FAMILY_BY_EMAIL } from "./config.js";
 
 const configured = !SUPABASE_URL.startsWith("YOUR_") && !SUPABASE_PUBLISHABLE_KEY.startsWith("YOUR_");
 const supabase = configured ? createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY) : null;
 const $ = s => document.querySelector(s);
 
-/* ── 가족 계정 매핑 ───────────────────────────────────
-   Supabase에 등록한 가족 각자의 이메일을 왼쪽에,
-   그 사람 이름을 오른쪽에 넣어 주세요. 로그인하면
-   작성자가 자동으로 선택되고 바뀌지 않게 고정됩니다.  */
-const FAMILY_BY_EMAIL = {
-  'ruthkimkr7@gmail.com': '엄마',
-  'ypark1416@gmail.com': '아빠',
-  'pgh.toto@gmail.com': '가현',
-  'halona032@gmail.com': '지용',
-  'yeonghyeon4321@gmail.com': '영현',
-};
+/* 가족 계정 매핑은 config.js의 FAMILY_BY_EMAIL을 그대로 사용합니다. */
 
 function applyAuthorLock(session){
   const select=$("#postForm select[name=author_name]"); if(!select) return;

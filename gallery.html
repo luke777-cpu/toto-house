@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f5f1e8">
+  <meta name="description" content="토토의 집 가족 앨범 - 가족 사진을 모아두는 공간">
+  <title>가족 앨범 · 토토의 집</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Pretendard:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="gallery.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="index.html" aria-label="토토의 집 홈">
+      <span class="brand-mark">T</span>
+      <span>토토의 집</span>
+    </a>
+    <nav class="nav" aria-label="주요 메뉴">
+      <a href="index.html#story">이야기</a>
+      <a href="index.html#family">가족</a>
+      <a href="index.html#community">게시판</a>
+      <a href="gallery.html" aria-current="page">가족 앨범</a>
+    </nav>
+    <div class="top-actions"><button class="theme-toggle" id="themeToggle" type="button" aria-label="화면 테마 바꾸기">◐</button></div>
+  </header>
+
+  <main>
+    <!-- 로그인 게이트 -->
+    <section class="gallery-auth-gate" id="galleryAuthGate">
+      <h1>가족 앨범</h1>
+      <p>로그인한 가족만 앨범을 보고 사진을 올릴 수 있습니다.</p>
+      <button class="google-button" id="galleryGoogleLogin" type="button">
+        <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.9c1.7-1.57 2.7-3.88 2.7-6.62z"/><path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.9-2.26c-.8.54-1.84.86-3.06.86-2.35 0-4.34-1.59-5.05-3.72H.98v2.33A9 9 0 0 0 9 18z"/><path fill="#FBBC05" d="M3.95 10.7A5.4 5.4 0 0 1 3.67 9c0-.59.1-1.17.28-1.7V4.97H.98A9 9 0 0 0 0 9c0 1.45.35 2.83.98 4.03l2.97-2.33z"/><path fill="#EA4335" d="M9 3.58c1.32 0 2.51.46 3.44 1.35l2.58-2.58A9 9 0 0 0 .98 4.97l2.97 2.33C4.66 5.17 6.65 3.58 9 3.58z"/></svg>
+        <span>Google 계정으로 로그인</span>
+      </button>
+      <div class="form-divider"><span>또는</span></div>
+      <form class="writer-form" id="galleryLoginForm">
+        <label><span class="field-label">이메일</span><input name="email" type="email" autocomplete="email" required></label>
+        <label><span class="field-label">비밀번호</span><input name="password" type="password" autocomplete="current-password" required></label>
+        <button class="primary-button" type="submit">로그인</button>
+      </form>
+      <p class="community-status" id="galleryAuthStatus" aria-live="polite"></p>
+    </section>
+
+    <!-- 로그인 후 화면 -->
+    <div id="galleryApp" hidden>
+      <div class="gallery-toolbar">
+        <h1>가족 앨범</h1>
+        <div class="gallery-account">
+          <span id="galleryAccountEmail"></span>
+          <button class="write-button" id="openAlbumModal" type="button">＋ 새 앨범</button>
+          <button class="text-button" id="galleryLogoutButton" type="button">로그아웃</button>
+        </div>
+      </div>
+
+      <!-- 앨범 목록 -->
+      <section id="albumListView">
+        <div class="album-card-grid" id="albumGrid" aria-live="polite"></div>
+      </section>
+
+      <!-- 앨범 상세 -->
+      <section id="albumDetailView" hidden>
+        <div class="album-detail-header">
+          <a class="back-link" href="gallery.html" id="backToAlbumList">← 앨범 목록으로</a>
+          <h1 id="albumDetailTitle"></h1>
+          <p id="albumDetailDesc"></p>
+          <p id="albumDetailDate"></p>
+          <div class="album-detail-actions">
+            <button id="editAlbumButton" type="button" hidden>앨범 정보 수정</button>
+            <button id="selectModeButton" type="button" hidden>사진 선택</button>
+            <button id="reorderModeButton" type="button" hidden>순서 변경</button>
+          </div>
+        </div>
+
+        <div class="upload-panel" id="uploadPanel" hidden>
+          <div class="upload-dropzone" id="uploadDropzone">
+            <strong>사진을 여기로 끌어다 놓거나 눌러서 선택하세요</strong>
+            <span>여러 장을 한 번에 선택할 수 있어요 · JPG, PNG, WEBP, HEIC 지원</span>
+            <input id="albumPhotoInput" type="file" accept=".jpg,.jpeg,.png,.webp,.heic,.heif,image/*" multiple capture="environment" hidden>
+          </div>
+          <label class="upload-options">
+            <input type="checkbox" id="keepOriginalToggle">
+            원본 화질로 보관 (용량이 커집니다. 기본은 약 2200px로 축소돼 저장됩니다)
+          </label>
+          <div class="upload-progress-wrap" id="uploadProgressWrap" hidden>
+            <div class="upload-progress-track"><div class="upload-progress-bar" id="uploadProgressBar"></div></div>
+            <span class="upload-progress-label" id="uploadProgressLabel"></span>
+          </div>
+          <div class="upload-queue" id="uploadQueue" hidden></div>
+          <p class="upload-summary" id="uploadSummary"></p>
+        </div>
+
+        <div class="selection-toolbar" id="selectionToolbar" hidden>
+          <span class="selection-count" id="selectionCount"></span>
+          <button id="deleteSelectedButton" type="button">선택한 사진 삭제</button>
+        </div>
+
+        <div class="photo-grid" id="photoGrid" aria-live="polite"></div>
+        <div id="loadMoreSentinel"></div>
+      </section>
+    </div>
+  </main>
+
+  <!-- 앨범 만들기/수정 모달 -->
+  <div id="albumModal" hidden>
+    <div class="album-modal-card" role="dialog" aria-modal="true" aria-labelledby="albumModalTitle">
+      <h2 id="albumModalTitle">새 앨범 만들기</h2>
+      <form class="writer-form" id="albumForm">
+        <label><span class="field-label">앨범 제목</span><input name="title" maxlength="60" placeholder="예: 2026 여름 가족여행" required></label>
+        <label><span class="field-label">설명</span><textarea name="description" rows="3" maxlength="300" placeholder="간단한 설명을 남겨 보세요"></textarea></label>
+        <div class="album-date-row">
+          <label><span class="field-label">촬영 날짜</span><input name="event_date" type="date"></label>
+          <label><span class="field-label">종료일 (기간인 경우)</span><input name="event_date_end" type="date"></label>
+        </div>
+        <div id="albumCoverField">
+          <label><span class="field-label">대표 사진 (선택)</span>
+            <label class="file-trigger">
+              <input id="albumCoverInput" name="cover" type="file" accept="image/*">
+              <span class="file-trigger-text">대표 사진 선택</span>
+            </label>
+          </label>
+          <img id="albumCoverPreview" alt="대표 사진 미리보기" hidden>
+        </div>
+        <button class="primary-button" id="albumSubmitButton" type="submit">앨범 만들기</button>
+        <button class="text-button" id="closeAlbumModal" type="button">취소</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- 라이트박스 -->
+  <div id="lightbox" hidden>
+    <div class="lightbox-stage">
+      <span class="lightbox-counter" id="lightboxCounter"></span>
+      <button class="lightbox-close" id="lightboxClose" type="button" aria-label="닫기">×</button>
+      <button class="lightbox-arrow lightbox-prev" id="lightboxPrev" type="button" aria-label="이전 사진">‹</button>
+      <img id="lightboxImage" alt="">
+      <button class="lightbox-arrow lightbox-next" id="lightboxNext" type="button" aria-label="다음 사진">›</button>
+    </div>
+    <div class="lightbox-info">
+      <p id="lightboxCaptionView"></p>
+      <time id="lightboxDateView"></time>
+      <div class="lightbox-toolbar">
+        <button id="lightboxSlideshowButton" type="button">슬라이드쇼 시작</button>
+      </div>
+      <div class="lightbox-edit-panel" id="lightboxEditPanel" hidden>
+        <div id="lightboxPhotoEditFields">
+          <input type="text" id="lightboxCaptionInput" placeholder="사진 설명">
+          <input type="date" id="lightboxDateInput">
+          <label class="checkbox-row"><input type="checkbox" id="lightboxHeroToggle"> 홈 화면 대표 사진(배너)으로 사용</label>
+          <div class="lightbox-toolbar">
+            <button id="lightboxSaveButton" type="button">저장</button>
+            <button class="danger" id="lightboxDeleteButton" type="button">사진 삭제</button>
+          </div>
+        </div>
+        <div class="lightbox-toolbar">
+          <button id="lightboxSetCoverButton" type="button">앨범 대표 사진으로 지정</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <div>
+      <strong>토토의 집</strong>
+      <p>제주에서 산골까지, 토토와 우리 가족의 생활 기록.</p>
+    </div>
+    <p>© <span id="year"></span> Toto House</p>
+  </footer>
+
+  <script src="script.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+  <script type="module" src="gallery.js?v=1"></script>
+</body>
+</html>
