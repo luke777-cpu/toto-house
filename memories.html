@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f5f1e8">
+  <meta name="description" content="그때 우리는 참 작았다 - 가현·지용·영현의 어린 시절 타임캡슐">
+  <title>그때 우리는 참 작았다 · 토토의 집</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Pretendard:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="gallery.css">
+  <link rel="stylesheet" href="memories.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="index.html" aria-label="토토의 집 홈">
+      <span class="brand-mark">T</span>
+      <span>토토의 집</span>
+    </a>
+    <nav class="nav" aria-label="주요 메뉴">
+      <a href="index.html#story">이야기</a>
+      <a href="index.html#family">가족</a>
+      <a href="index.html#community">게시판</a>
+      <a href="gallery.html">가족 앨범</a>
+      <a href="memories.html" aria-current="page">어린 시절</a>
+    </nav>
+    <div class="top-actions"><button class="theme-toggle" id="themeToggle" type="button" aria-label="화면 테마 바꾸기">◐</button></div>
+  </header>
+
+  <main>
+    <!-- 표지 -->
+    <section class="memory-cover">
+      <img id="coverImage" src="images/childhood/full/memory-01.webp" alt="가족의 어린 시절 대표 사진" fetchpriority="high">
+      <div class="memory-cover-body">
+        <h1>그때 우리는<br>참 작았다</h1>
+        <p>사진 속에는 우리가 잊고 있던 하루들이 남아 있습니다.<br>가현·지용·영현의 어린 시절 타임캡슐</p>
+        <div class="memory-cover-actions">
+          <button class="primary" id="startStoryButton" type="button">추억 시작하기</button>
+          <button id="goGridButton" type="button">50장 한눈에 보기</button>
+          <button id="randomMemoryButton" type="button">무작위 추억 한 장</button>
+        </div>
+        <div class="memory-cover-stats">
+          <span>사진 50장</span><span>추억 장면 5개</span><span>예상 감상 시간 약 4분</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 오늘의 추억 (홈에도 동일 컴포넌트가 있지만, 이 페이지에도 표시) -->
+    <a class="today-memory-card" id="todayMemoryCard" href="#" hidden>
+      <img id="todayMemoryImg" alt="">
+      <div>
+        <h3>오늘 도착한 옛날 사진</h3>
+        <p id="todayMemoryCaption"></p>
+      </div>
+    </a>
+
+    <!-- 전체 보기(그리드) -->
+    <section class="memory-grid-section" id="gridView">
+      <div class="memory-grid-toolbar">
+        <div class="chapter-filters" id="chapterFilters">
+          <button class="active" data-chapter="all" type="button">전체</button>
+        </div>
+        <div style="display:flex; gap:8px;">
+          <a class="write-button" href="downloads/아이들-어린시절-추억-50장.zip" download>50장 전체 ZIP 다운로드</a>
+        </div>
+      </div>
+      <div class="memory-grid" id="memoryGrid" aria-live="polite"></div>
+    </section>
+
+    <!-- 누군지 맞혀보세요 -->
+    <section class="guess-section">
+      <div class="community-title reveal">
+        <div><p class="kicker">GAME</p><h2>누군지 맞혀보세요</h2></div>
+      </div>
+      <div id="guessGameArea"></div>
+    </section>
+
+    <!-- 그때와 지금 -->
+    <section class="thennow-section" id="thenNowSection" hidden>
+      <div class="community-title reveal">
+        <div><p class="kicker">THEN &amp; NOW</p><h2>그때와 지금</h2></div>
+      </div>
+      <div id="thenNowGrid" style="display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:18px;"></div>
+    </section>
+  </main>
+
+  <!-- 스토리 뷰 -->
+  <div id="storyView" hidden>
+    <div class="story-progress" id="storyProgress"></div>
+    <div class="story-head">
+      <span id="storyChapterLabel"></span>
+      <div>
+        <button id="storyAutoplayToggle" type="button" aria-label="자동재생 켜기/끄기">⏸</button>
+        <button id="storyCloseButton" type="button" aria-label="닫기">×</button>
+      </div>
+    </div>
+    <div class="story-stage" id="storyStage">
+      <div class="story-stage-bg" id="storyStageBg"></div>
+      <div class="story-tap-zone story-tap-prev" id="storyTapPrev"></div>
+      <div class="story-tap-zone story-tap-next" id="storyTapNext"></div>
+      <img id="storyImage" alt="">
+      <div class="story-next-chapter" id="storyNextChapter">
+        <h3></h3>
+        <button id="storyNextChapterButton" type="button">다음 챕터 보기</button>
+      </div>
+    </div>
+    <div class="story-info">
+      <p class="story-caption" id="storyCaption"></p>
+      <div class="story-reactions" id="storyReactions">
+        <button data-emoji="😂" type="button">😂 <span data-count>0</span></button>
+        <button data-emoji="❤️" type="button">❤️ <span data-count>0</span></button>
+        <button data-emoji="😮" type="button">😮 <span data-count>0</span></button>
+        <button class="story-comment-toggle" id="storyCommentToggle" type="button">💬 추억 남기기</button>
+      </div>
+      <p class="story-question" id="storyQuestion"></p>
+      <div class="story-comments" id="storyComments">
+        <div id="storyCommentList"></div>
+        <form class="story-comment-form" id="storyCommentForm">
+          <input type="text" id="storyCommentInput" maxlength="200" placeholder="댓글을 남겨보세요 (로그인 필요)">
+          <button type="submit">등록</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- 그리드 확대 모달 -->
+  <div id="memoryModal" hidden>
+    <button class="memory-modal-close" id="memoryModalClose" type="button" aria-label="닫기">×</button>
+    <button class="memory-modal-arrow memory-modal-prev" id="memoryModalPrev" type="button" aria-label="이전 사진">‹</button>
+    <div class="memory-modal-stage"><img id="memoryModalImage" alt=""></div>
+    <button class="memory-modal-arrow memory-modal-next" id="memoryModalNext" type="button" aria-label="다음 사진">›</button>
+    <div class="memory-modal-info">
+      <p id="memoryModalCaption"></p>
+      <div class="memory-modal-actions">
+        <a id="memoryModalDownload" href="#" download>사진 다운로드</a>
+        <span id="memoryModalSource"></span>
+      </div>
+    </div>
+  </div>
+
+  <button class="music-toggle" id="musicToggle" type="button" aria-label="배경음악 켜기/끄기" hidden>🔈</button>
+  <audio id="bgMusic" loop preload="none"></audio>
+
+  <footer>
+    <div>
+      <strong>토토의 집</strong>
+      <p>제주에서 산골까지, 토토와 우리 가족의 생활 기록.</p>
+    </div>
+    <p>© <span id="year"></span> Toto House</p>
+  </footer>
+
+  <script src="script.js"></script>
+  <script type="module" src="memories.js?v=1"></script>
+</body>
+</html>

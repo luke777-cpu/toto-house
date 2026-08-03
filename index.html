@@ -11,6 +11,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Pretendard:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="gallery.css">
+  <link rel="stylesheet" href="memories.css">
 </head>
 <body>
   <header class="topbar">
@@ -23,6 +24,7 @@
       <a href="#family">가족</a>
       <a href="#gallery">사진</a>
       <a href="gallery.html">가족 앨범</a>
+      <a href="memories.html">어린 시절</a>
     </nav>
     <div class="top-actions"><button class="write-button" id="openWriter" type="button">가족 글쓰기</button><button class="theme-toggle" id="themeToggle" type="button" aria-label="화면 테마 바꾸기">◐</button></div>
   </header>
@@ -125,6 +127,21 @@
       </div>
       <div class="album-card-grid" id="recentAlbums" aria-live="polite"></div>
       <div class="recent-photos-grid" id="recentPhotos" aria-live="polite"></div>
+
+      <div class="timecapsule-promo reveal">
+        <div>
+          <h3>사진 상자에서 발견한 50개의 하루</h3>
+          <p>가현·지용·영현의 어린 시절을 만나보세요.</p>
+        </div>
+        <a href="memories.html">타임캡슐 열기</a>
+      </div>
+      <a class="today-memory-card" id="todayMemoryCard" href="#" hidden>
+        <img id="todayMemoryImg" alt="">
+        <div>
+          <h3>오늘 도착한 옛날 사진</h3>
+          <p id="todayMemoryCaption"></p>
+        </div>
+      </a>
     </section>
   </main>
 
@@ -204,5 +221,6 @@
   <script src="script.js"></script>
   <script type="module" src="community.js?v=20260802d"></script>
   <script type="module" src="gallery.js?v=1"></script>
+  <script type="module" src="memories.js?v=1"></script>
 </body>
 </html>

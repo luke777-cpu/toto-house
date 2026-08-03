@@ -1,0 +1,173 @@
+/* ══════════════════════════════════════════════════════
+   어린 시절 타임캡슐 (memories.html) 전용 스타일
+   ══════════════════════════════════════════════════════ */
+
+.memory-cover{
+  position:relative; min-height:92vh; min-height:min(92vh,92dvh);
+  overflow:hidden; display:flex; align-items:center;
+  border-radius:0 0 40px 40px;
+}
+.memory-cover img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; filter:saturate(.9); }
+.memory-cover::after{
+  content:""; position:absolute; inset:0;
+  background:linear-gradient(0deg, rgba(10,15,11,.82) 0%, rgba(10,15,11,.35) 55%, rgba(10,15,11,.15) 100%);
+}
+.memory-cover-body{ position:relative; z-index:1; width:min(92%,720px); margin:0 auto; text-align:center; color:white; }
+.memory-cover-body h1{ font-family:"Gowun Batang",serif; font-size:clamp(36px,6vw,58px); margin:0 0 14px; line-height:1.25; }
+.memory-cover-body p{ font-size:15px; opacity:.85; margin:0 0 30px; line-height:1.6; }
+.memory-cover-actions{ display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin-bottom:28px; }
+.memory-cover-actions button{
+  padding:13px 22px; border-radius:999px; border:1px solid rgba(255,255,255,.5);
+  background:rgba(255,255,255,.12); backdrop-filter:blur(8px); color:white;
+  font-size:14px; font-weight:700; cursor:pointer;
+}
+.memory-cover-actions button.primary{ background:var(--accent); border-color:transparent; }
+.memory-cover-actions button:hover{ background:rgba(255,255,255,.22); }
+.memory-cover-stats{ display:flex; gap:22px; justify-content:center; font-size:12px; opacity:.75; }
+
+/* ── 스토리 뷰 ─────────────────────────────────────────── */
+#storyView{
+  position:fixed; inset:0; z-index:300; background:#0a0f0b;
+  display:flex; flex-direction:column;
+}
+#storyView[hidden]{ display:none; }
+.story-progress{ display:flex; gap:4px; padding:10px 14px 0; }
+.story-progress span{ flex:1; height:3px; border-radius:99px; background:rgba(255,255,255,.25); overflow:hidden; }
+.story-progress span i{ display:block; height:100%; width:0; background:white; }
+.story-progress span.done i{ width:100%; }
+.story-head{ display:flex; justify-content:space-between; align-items:center; padding:10px 14px; color:white; font-size:12px; opacity:.85; }
+.story-head button{ background:none; border:0; color:white; font-size:22px; cursor:pointer; opacity:.9; }
+.story-stage{ position:relative; flex:1; min-height:0; display:flex; align-items:center; justify-content:center; overflow:hidden; }
+.story-stage-bg{ position:absolute; inset:0; background-size:cover; background-position:center; filter:blur(30px) brightness(.5); transform:scale(1.15); }
+.story-stage img{ position:relative; z-index:1; max-width:94%; max-height:100%; object-fit:contain; border-radius:8px; }
+.story-tap-zone{ position:absolute; top:0; bottom:0; width:38%; z-index:2; cursor:pointer; }
+.story-tap-prev{ left:0; } .story-tap-next{ right:0; }
+.story-info{ padding:14px 18px calc(16px + env(safe-area-inset-bottom)); color:white; background:rgba(0,0,0,.35); }
+.story-caption{ font-size:15px; margin:0 0 10px; line-height:1.5; }
+.story-reactions{ display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
+.story-reactions button{
+  border:1px solid rgba(255,255,255,.3); background:rgba(255,255,255,.08); color:white;
+  border-radius:999px; padding:6px 12px; font-size:13px; cursor:pointer;
+}
+.story-reactions button.active{ background:var(--accent); border-color:transparent; }
+.story-comment-toggle{ margin-left:auto; }
+.story-comments{ margin-top:12px; display:none; flex-direction:column; gap:8px; max-height:160px; overflow-y:auto; }
+.story-comments.open{ display:flex; }
+.story-comment-item{ font-size:13px; background:rgba(255,255,255,.08); border-radius:10px; padding:8px 10px; }
+.story-comment-item b{ font-weight:700; }
+.story-comment-form{ display:flex; gap:8px; margin-top:8px; }
+.story-comment-form input{
+  flex:1; padding:9px 12px; border-radius:10px; border:1px solid rgba(255,255,255,.3);
+  background:rgba(255,255,255,.08); color:white; font-size:13px;
+}
+.story-comment-form button{ border:0; background:var(--accent); color:white; border-radius:10px; padding:9px 14px; font-size:13px; cursor:pointer; }
+.story-question{ font-size:12px; opacity:.7; margin:8px 0 0; }
+.story-next-chapter{
+  position:absolute; inset:0; z-index:5; display:none;
+  flex-direction:column; align-items:center; justify-content:center; gap:16px;
+  background:rgba(6,10,7,.92); color:white; text-align:center; padding:24px;
+}
+.story-next-chapter.show{ display:flex; }
+.story-next-chapter h3{ font-family:"Gowun Batang",serif; font-size:26px; margin:0; }
+.story-next-chapter button{ border:0; background:var(--accent); color:white; border-radius:999px; padding:12px 24px; font-size:14px; cursor:pointer; }
+
+/* ── 전체 보기(그리드) ─────────────────────────────────── */
+.memory-grid-section{ width:min(92%,1080px); margin:60px auto; }
+.memory-grid-toolbar{ display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:space-between; margin-bottom:22px; }
+.chapter-filters{ display:flex; flex-wrap:wrap; gap:8px; }
+.chapter-filters button{
+  border:1px solid var(--line); background:var(--surface); border-radius:999px;
+  padding:8px 16px; font-size:12px; font-weight:700; cursor:pointer; color:var(--text);
+}
+.chapter-filters button.active{ background:var(--accent); color:white; border-color:transparent; }
+.memory-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:10px; }
+.memory-tile{ position:relative; aspect-ratio:1; border-radius:14px; overflow:hidden; cursor:pointer; background:var(--accent-soft); }
+.memory-tile img{ width:100%; height:100%; object-fit:cover; transition:transform .2s; }
+.memory-tile:hover img{ transform:scale(1.05); }
+.memory-tile span{
+  position:absolute; left:8px; bottom:8px; font-size:10px; color:white; font-weight:700;
+  background:rgba(0,0,0,.4); padding:3px 8px; border-radius:999px;
+}
+
+/* ── 그리드 확대 모달 ──────────────────────────────────── */
+#memoryModal{ position:fixed; inset:0; z-index:200; background:rgba(6,10,7,.94); display:flex; flex-direction:column; }
+#memoryModal[hidden]{ display:none; }
+.memory-modal-stage{ flex:1; display:flex; align-items:center; justify-content:center; position:relative; min-height:0; }
+.memory-modal-stage img{ max-width:92%; max-height:78vh; max-height:78dvh; object-fit:contain; border-radius:8px; }
+.memory-modal-close{ position:absolute; top:16px; right:16px; z-index:3; width:42px; height:42px; border-radius:50%; border:1px solid rgba(255,255,255,.35); background:rgba(0,0,0,.35); color:white; font-size:22px; cursor:pointer; }
+.memory-modal-arrow{ position:absolute; top:50%; transform:translateY(-50%); width:46px; height:46px; border-radius:50%; border:1px solid rgba(255,255,255,.35); background:rgba(0,0,0,.35); color:white; font-size:26px; cursor:pointer; }
+.memory-modal-prev{ left:14px; } .memory-modal-next{ right:14px; }
+.memory-modal-info{ padding:14px 20px calc(18px + env(safe-area-inset-bottom)); color:white; background:rgba(0,0,0,.35); }
+.memory-modal-actions{ display:flex; gap:10px; margin-top:10px; flex-wrap:wrap; }
+.memory-modal-actions a, .memory-modal-actions button{
+  border:1px solid rgba(255,255,255,.3); background:rgba(255,255,255,.08); color:white;
+  border-radius:999px; padding:7px 14px; font-size:12px; text-decoration:none; cursor:pointer;
+}
+
+/* ── 오늘의 추억(홈) ───────────────────────────────────── */
+.today-memory-card{
+  display:flex; gap:18px; align-items:center;
+  width:min(92%,1080px); margin:26px auto 0; padding:18px;
+  border:1px solid var(--line); border-radius:22px; background:var(--surface); box-shadow:var(--shadow);
+  text-decoration:none; color:inherit; cursor:pointer;
+}
+.today-memory-card img{ width:96px; height:96px; object-fit:cover; border-radius:14px; flex-shrink:0; }
+.today-memory-card h3{ margin:0 0 4px; font-family:"Gowun Batang",serif; font-size:18px; }
+.today-memory-card p{ margin:0; font-size:13px; color:var(--muted); }
+
+/* ── 홈 타임캡슐 홍보 카드 ─────────────────────────────── */
+.timecapsule-promo{
+  width:min(92%,1080px); margin:20px auto 0; padding:26px;
+  border-radius:24px; background:linear-gradient(120deg,var(--accent-soft),var(--surface));
+  border:1px solid var(--line); display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:16px;
+}
+.timecapsule-promo h3{ margin:0 0 6px; font-family:"Gowun Batang",serif; font-size:21px; }
+.timecapsule-promo p{ margin:0; color:var(--muted); font-size:13px; }
+.timecapsule-promo a{
+  border:0; border-radius:999px; background:var(--accent); color:white;
+  padding:12px 22px; font-size:13px; font-weight:700; text-decoration:none; white-space:nowrap;
+}
+
+/* ── 누군지 맞혀보세요 / 그때와 지금 ───────────────────── */
+.guess-section, .thennow-section{ width:min(92%,1080px); margin:60px auto; }
+.guess-card{ border:1px solid var(--line); border-radius:22px; padding:24px; background:var(--surface); text-align:center; max-width:420px; margin:0 auto; }
+.guess-card img{ width:100%; max-height:320px; object-fit:cover; border-radius:16px; margin-bottom:16px; }
+.guess-options{ display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
+.guess-options button{ border:1px solid var(--line); background:var(--bg); border-radius:999px; padding:9px 18px; font-size:13px; cursor:pointer; }
+.guess-options button.correct{ background:var(--accent); color:white; border-color:transparent; }
+.guess-result{ margin-top:14px; font-size:13px; color:var(--muted); min-height:20px; }
+.guess-empty{ text-align:center; color:var(--muted); font-size:14px; padding:30px; border:1px dashed var(--line); border-radius:18px; }
+
+.thennow-card{ border:1px solid var(--line); border-radius:22px; overflow:hidden; background:var(--surface); }
+.thennow-slider{ position:relative; aspect-ratio:4/3; overflow:hidden; }
+.thennow-slider img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+.thennow-slider .then-img{ clip-path:inset(0 50% 0 0); }
+.thennow-slider input[type=range]{ position:absolute; inset:0; width:100%; height:100%; margin:0; opacity:0; cursor:ew-resize; }
+.thennow-handle{ position:absolute; top:0; bottom:0; left:50%; width:3px; background:white; pointer-events:none; }
+
+/* ── 음악 컨트롤 ───────────────────────────────────────── */
+.music-toggle{
+  position:fixed; z-index:250; right:18px; bottom:18px;
+  width:48px; height:48px; border-radius:50%; border:1px solid var(--line);
+  background:var(--surface); box-shadow:var(--shadow); cursor:pointer; font-size:20px;
+}
+.music-toggle[hidden]{ display:none; }
+
+@media(max-width:760px){
+  .memory-grid{ grid-template-columns:repeat(auto-fill,minmax(110px,1fr)); }
+  .today-memory-card{ flex-direction:column; align-items:flex-start; }
+  .today-memory-card img{ width:100%; height:160px; }
+  .timecapsule-promo{ flex-direction:column; align-items:flex-start; }
+}
+
+@media (prefers-reduced-motion: reduce){
+  .memory-tile img, .story-stage-bg{ transition:none; }
+}
+
+/* ── 큰 화면(TV) 대응: 글자 최소 24px ─────────────────── */
+@media(min-width:1600px){
+  .story-caption{ font-size:24px; }
+  .story-question{ font-size:15px; }
+  .story-reactions button{ font-size:15px; padding:9px 16px; }
+  .memory-cover-body p{ font-size:19px; }
+}
