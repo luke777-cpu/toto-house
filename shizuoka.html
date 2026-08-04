@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f5f1e8">
+  <meta name="description" content="토토의 집 시즈오카 여행 앨범">
+  <title>시즈오카 여행 · 토토의 집</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Pretendard:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    :root{--paper:#f5f1e8;--ink:#27231f;--muted:#756e65;--line:rgba(39,35,31,.14);--card:#fffdf8}
+    *{box-sizing:border-box} body{margin:0;background:var(--paper);color:var(--ink);font-family:Pretendard,sans-serif}
+    .album-top{max-width:1280px;margin:0 auto;padding:34px 24px 10px}.album-top a{color:inherit;text-decoration:none;font-weight:700}
+    .album-hero{max-width:1280px;margin:0 auto;padding:42px 24px 28px}.eyebrow{font-size:.82rem;letter-spacing:.16em;color:var(--muted);font-weight:800}
+    h1{font-family:"Gowun Batang",serif;font-size:clamp(2.4rem,7vw,5.8rem);line-height:1.05;margin:.4rem 0 1rem}
+    .intro{max-width:720px;color:var(--muted);line-height:1.8;font-size:1.05rem}.meta{display:flex;gap:16px;flex-wrap:wrap;margin-top:18px;font-weight:700}
+    .grid{max-width:1280px;margin:0 auto;padding:20px 24px 80px;columns:4 260px;column-gap:16px}
+    .photo{break-inside:avoid;margin:0 0 16px;border-radius:16px;overflow:hidden;background:var(--card);box-shadow:0 7px 24px rgba(0,0,0,.08);cursor:zoom-in}
+    .photo img{display:block;width:100%;height:auto;transition:transform .35s ease}.photo:hover img{transform:scale(1.025)}
+    .lightbox{position:fixed;inset:0;background:rgba(9,9,9,.94);z-index:9999;display:grid;place-items:center;padding:24px}
+    .lightbox[hidden]{display:none}.lightbox img{max-width:min(94vw,1400px);max-height:86vh;object-fit:contain;border-radius:10px}
+    .close,.prev,.next{position:fixed;border:0;background:rgba(255,255,255,.14);color:white;border-radius:999px;width:48px;height:48px;font-size:32px;cursor:pointer}
+    .close{top:18px;right:18px}.prev{left:18px;top:50%}.next{right:18px;top:50%}.counter{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);color:white;font-weight:700}
+    footer{max-width:1280px;margin:0 auto;padding:28px 24px 50px;color:var(--muted);border-top:1px solid var(--line)}
+    @media(max-width:700px){.grid{columns:2 150px;padding-left:12px;padding-right:12px;column-gap:10px}.photo{margin-bottom:10px;border-radius:11px}.album-hero{padding-top:24px}.prev,.next{width:42px;height:42px}.prev{left:8px}.next{right:8px}}
+  </style>
+</head>
+<body>
+  <header class="album-top"><a href="index.html">← 토토의 집으로</a></header>
+  <main>
+    <section class="album-hero">
+      <p class="eyebrow">TRAVEL ALBUM · SHIZUOKA</p>
+      <h1>시즈오카 여행</h1>
+      <p class="intro">후지산을 품은 시즈오카에서 만난 풍경과 가족의 순간들. 사진을 누르면 크게 볼 수 있고, 좌우로 넘기며 감상할 수 있습니다.</p>
+      <div class="meta"><span>사진 20장</span><span>가족 여행 기록</span></div>
+    </section>
+    <section class="grid" id="photoGrid" aria-label="시즈오카 여행 사진"></section>
+  </main>
+  <div class="lightbox" id="lightbox" hidden aria-modal="true" role="dialog">
+    <button class="close" id="close" aria-label="닫기">×</button>
+    <button class="prev" id="prev" aria-label="이전 사진">‹</button>
+    <img id="largeImage" alt="시즈오카 여행 사진 크게 보기">
+    <button class="next" id="next" aria-label="다음 사진">›</button>
+    <div class="counter" id="counter"></div>
+  </div>
+  <footer>© 2026 Toto House · 시즈오카 가족 여행 앨범</footer>
+  <script>
+    const files=['shizuoka-0660.webp','shizuoka-0662.webp','shizuoka-0663.webp','shizuoka-0664.webp','shizuoka-0666.webp','shizuoka-0668.webp','shizuoka-0669.webp','shizuoka-0670.webp','shizuoka-0672.webp','shizuoka-0673.webp','shizuoka-0675.webp','shizuoka-0678.webp','shizuoka-0680.webp','shizuoka-0681.webp','shizuoka-0684.webp','shizuoka-0685.webp','shizuoka-0686.webp','shizuoka-0689.webp','shizuoka-0690.webp','shizuoka-0691.webp'];
+    const grid=document.getElementById('photoGrid'); const box=document.getElementById('lightbox'); const big=document.getElementById('largeImage'); const counter=document.getElementById('counter'); let current=0;
+    files.forEach((src,i)=>{const figure=document.createElement('figure');figure.className='photo';const img=document.createElement('img');img.src=src;img.alt=`시즈오카 여행 사진 ${i+1}`;img.loading=i<4?'eager':'lazy';img.decoding='async';figure.appendChild(img);figure.addEventListener('click',()=>open(i));grid.appendChild(figure)});
+    function open(i){current=i;big.src=files[current];counter.textContent=`${current+1} / ${files.length}`;box.hidden=false;document.body.style.overflow='hidden'}
+    function closeBox(){box.hidden=true;document.body.style.overflow=''}
+    function move(step){current=(current+step+files.length)%files.length;open(current)}
+    document.getElementById('close').onclick=closeBox;document.getElementById('prev').onclick=()=>move(-1);document.getElementById('next').onclick=()=>move(1);
+    box.addEventListener('click',e=>{if(e.target===box)closeBox()});
+    document.addEventListener('keydown',e=>{if(box.hidden)return;if(e.key==='Escape')closeBox();if(e.key==='ArrowLeft')move(-1);if(e.key==='ArrowRight')move(1)});
+    let startX=0;box.addEventListener('touchstart',e=>startX=e.touches[0].clientX,{passive:true});box.addEventListener('touchend',e=>{const d=e.changedTouches[0].clientX-startX;if(Math.abs(d)>50)move(d>0?-1:1)},{passive:true});
+  </script>
+</body>
+</html>
