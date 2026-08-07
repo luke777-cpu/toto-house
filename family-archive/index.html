@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>아이들의 기록 — 토토의 집</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Gaegu:wght@400;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#EDE6D5;
+    --paper-deep:#E1D5B8;
+    --paper-card:#F7F2E6;
+    --ink:#2A2620;
+    --ink-soft:#6B6255;
+    --ink-faint:#9A9082;
+    --thread:#9C3B2C;
+    --gahyun:#B65B34;
+    --jiyong:#3E5C78;
+    --younghyun:#5C7A52;
+    --unknown:#8C8171;
+    --line:#CBBFA0;
+    --shadow: 0 10px 30px rgba(42,38,32,0.14);
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--paper);
+    background-image:
+      radial-gradient(rgba(154,144,130,0.10) 1px, transparent 1px);
+    background-size: 3px 3px;
+    color:var(--ink);
+    font-family:'Noto Sans KR', sans-serif;
+    line-height:1.75;
+  }
+  h1,h2,h3,.serif{ font-family:'Gowun Batang', serif; }
+  .hand{ font-family:'Gaegu', cursive; }
+  a{color:inherit;}
+  img{display:block; max-width:100%;}
+
+  .wrap{ max-width:1040px; margin:0 auto; padding:0 24px; }
+
+  /* ── Hero ── */
+  .hero{
+    position:relative;
+    padding:96px 24px 72px;
+    text-align:center;
+    overflow:hidden;
+  }
+  .hero::before{
+    content:"";
+    position:absolute; inset:0;
+    background:
+      linear-gradient(180deg, transparent 60%, var(--paper) 100%);
+    pointer-events:none;
+  }
+  .hero-eyebrow{
+    font-family:'Gaegu', cursive;
+    color:var(--thread);
+    font-size:1.05rem;
+    letter-spacing:.04em;
+  }
+  .hero h1{
+    font-size:clamp(2.4rem, 6vw, 4rem);
+    margin:.3em 0 .5em;
+    font-weight:700;
+  }
+  .hero p.lede{
+    max-width:520px;
+    margin:0 auto;
+    color:var(--ink-soft);
+    font-size:1.05rem;
+  }
+  .hero-photo{
+    position:relative;
+    width:220px;
+    margin:44px auto 0;
+    transform:rotate(-4deg);
+  }
+  .hero-photo img{
+    border:10px solid var(--paper-card);
+    box-shadow: var(--shadow);
+  }
+  .hero-photo .tape{
+    position:absolute; top:-14px; left:50%;
+    transform:translateX(-50%) rotate(-3deg);
+    width:90px; height:28px;
+    background:rgba(182,91,52,0.35);
+    border:1px solid rgba(182,91,52,0.5);
+  }
+
+  /* ── Section shells ── */
+  section{ padding:64px 0; }
+  .section-title{
+    font-size:1.9rem;
+    text-align:center;
+    margin:0 0 8px;
+  }
+  .section-sub{
+    text-align:center;
+    color:var(--ink-soft);
+    max-width:520px;
+    margin:0 auto 40px;
+    font-size:.98rem;
+  }
+
+  /* ── Featured 3 ── */
+  .featured{ display:grid; grid-template-columns:repeat(3,1fr); gap:22px; }
+  .feature-card{
+    background:var(--paper-card);
+    border:1px solid var(--line);
+    border-radius:2px;
+    padding:26px 22px;
+    box-shadow: var(--shadow);
+    cursor:pointer;
+    transition:transform .18s ease;
+  }
+  .feature-card:hover{ transform:translateY(-4px); }
+  .feature-card .num{
+    font-family:'Gaegu',cursive;
+    color:var(--thread);
+    font-size:.95rem;
+  }
+  .feature-card h3{ margin:.4em 0 .5em; font-size:1.25rem; }
+  .feature-card p{ color:var(--ink-soft); font-size:.92rem; margin:0; }
+
+  .all-btn-wrap{ text-align:center; margin-top:36px; }
+  .btn{
+    display:inline-block;
+    font-family:'Gaegu', cursive;
+    font-size:1.05rem;
+    background:var(--thread);
+    color:var(--paper-card);
+    padding:12px 28px;
+    border-radius:2px;
+    text-decoration:none;
+    border:none;
+    cursor:pointer;
+    box-shadow: 0 4px 14px rgba(156,59,44,0.3);
+  }
+  .btn:hover{ filter:brightness(1.06); }
+
+  /* ── Filters ── */
+  .filters{
+    display:flex; justify-content:center; gap:10px; flex-wrap:wrap;
+    margin-bottom:36px;
+  }
+  .filter-btn{
+    font-family:'Gaegu', cursive;
+    font-size:1rem;
+    background:transparent;
+    border:1.5px solid var(--line);
+    color:var(--ink-soft);
+    padding:7px 18px;
+    border-radius:999px;
+    cursor:pointer;
+  }
+  .filter-btn[data-active="true"]{
+    background:var(--ink);
+    border-color:var(--ink);
+    color:var(--paper-card);
+  }
+  .filter-btn[data-tag="가현"][data-active="true"]{ background:var(--gahyun); border-color:var(--gahyun); }
+  .filter-btn[data-tag="지용"][data-active="true"]{ background:var(--jiyong); border-color:var(--jiyong); }
+  .filter-btn[data-tag="영현"][data-active="true"]{ background:var(--younghyun); border-color:var(--younghyun); }
+  .filter-btn[data-tag="미상"][data-active="true"]{ background:var(--unknown); border-color:var(--unknown); }
+
+  /* ── Grid ── */
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(200px,1fr));
+    gap:26px 20px;
+  }
+  .card{
+    position:relative;
+    background:var(--paper-card);
+    padding:10px 10px 16px;
+    box-shadow: var(--shadow);
+    cursor:pointer;
+    transform:rotate(var(--tilt,0deg));
+    transition:transform .18s ease;
+  }
+  .card:hover{ transform:rotate(0deg) translateY(-3px); }
+  .card .pin{
+    position:absolute; top:-10px; left:50%; transform:translateX(-50%);
+    width:44px; height:16px; border-radius:2px;
+    opacity:.85;
+  }
+  .card .thumb-frame{ overflow:hidden; background:#fff; }
+  .card img{ width:100%; height:180px; object-fit:cover; }
+  .card .meta{ padding-top:10px; }
+  .card .tag{
+    font-family:'Gaegu',cursive;
+    font-size:.85rem;
+    display:inline-block;
+    padding:1px 9px;
+    border-radius:999px;
+    color:#fff;
+  }
+  .card .year{ font-size:.78rem; color:var(--ink-faint); margin-left:6px; }
+  .card h4{ font-size:1rem; margin:.4em 0 0; font-weight:500; }
+
+  .tag-gahyun{ background:var(--gahyun); }
+  .tag-지용{ background:var(--jiyong); }
+  .tag-영현{ background:var(--younghyun); }
+  .tag-미상{ background:var(--unknown); }
+  .tag-가현{ background:var(--gahyun); }
+
+  /* ── Modal ── */
+  .modal-overlay{
+    position:fixed; inset:0; background:rgba(28,24,18,0.6);
+    display:none; align-items:flex-start; justify-content:center;
+    padding:40px 16px; overflow-y:auto; z-index:100;
+  }
+  .modal-overlay.open{ display:flex; }
+  .modal{
+    background:var(--paper-card);
+    max-width:640px; width:100%;
+    box-shadow:0 20px 60px rgba(0,0,0,0.35);
+    padding:28px;
+    position:relative;
+  }
+  .modal-close{
+    position:absolute; top:14px; right:16px;
+    background:none; border:none; font-size:1.4rem;
+    cursor:pointer; color:var(--ink-soft); font-family:'Gaegu',cursive;
+  }
+  .modal img.big{
+    width:100%; cursor:zoom-in; border:6px solid #fff; box-shadow:var(--shadow);
+  }
+  .modal img.big.zoomed{ cursor:zoom-out; }
+  .modal h3{ margin:20px 0 2px; font-size:1.4rem; }
+  .modal .by{ color:var(--ink-soft); font-size:.92rem; margin-bottom:14px; }
+  .modal .orig-link{
+    display:inline-block; font-family:'Gaegu',cursive; font-size:.92rem;
+    color:var(--thread); text-decoration:underline; margin-bottom:16px;
+  }
+  .modal .story-label, .modal .text-toggle{
+    font-family:'Gaegu',cursive; color:var(--ink-soft); font-size:.95rem;
+    margin:18px 0 6px;
+  }
+  .modal .story{ font-size:.96rem; color:var(--ink); }
+  .modal .text-toggle{
+    background:none; border:1px solid var(--line); border-radius:999px;
+    padding:6px 16px; cursor:pointer; display:block; margin-top:20px;
+  }
+  .modal .body-text{
+    display:none; white-space:pre-line; font-family:'Gaegu',cursive;
+    font-size:1.05rem; line-height:1.9; background:var(--paper);
+    padding:18px; margin-top:12px; border-left:3px solid var(--thread);
+  }
+  .modal .body-text.open{ display:block; }
+
+  /* ── Timeline ── */
+  .timeline{ position:relative; padding-left:26px; }
+  .timeline::before{
+    content:""; position:absolute; left:6px; top:6px; bottom:6px; width:2px;
+    background:repeating-linear-gradient(180deg, var(--thread) 0 6px, transparent 6px 12px);
+  }
+  .tl-year{ position:relative; margin-bottom:34px; }
+  .tl-year::before{
+    content:""; position:absolute; left:-26px; top:4px;
+    width:11px; height:11px; border-radius:50%;
+    background:var(--thread);
+  }
+  .tl-year h4{ font-family:'Gaegu',cursive; font-size:1.2rem; margin:0 0 10px; color:var(--thread); }
+  .tl-items{ display:flex; flex-wrap:wrap; gap:8px; }
+  .tl-chip{
+    font-size:.85rem; background:var(--paper-card); border:1px solid var(--line);
+    padding:5px 12px; border-radius:999px; cursor:pointer;
+  }
+
+  /* ── Closing ── */
+  .closing{ text-align:center; padding:80px 24px 100px; }
+  .closing p.big{ font-family:'Gowun Batang',serif; font-size:1.4rem; max-width:480px; margin:0 auto 18px; }
+  .closing p.small{ color:var(--ink-soft); font-size:.9rem; }
+
+  @media (max-width:720px){
+    .featured{ grid-template-columns:1fr; }
+  }
+</style>
+</head>
+<body>
+
+<section class="hero">
+  <div class="wrap">
+    <div class="hero-eyebrow">토토의 집 · 가족 디지털 기록관</div>
+    <h1>아이들의 기록</h1>
+    <p class="lede">서랍 속에 오래 잠들어 있던 아이들의 글과 그림.<br>
+      그때는 평범했던 종이 한 장이 이제는 우리 가족의 시간이 되었습니다.</p>
+    <div class="hero-photo">
+      <div class="tape"></div>
+      <img src="thumbnails/gahyun-poem-jumeoni.jpeg" alt="가현이의 시">
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="featured" id="featured-cards">
+      <!-- JS로 채워짐 -->
+    </div>
+    <div class="all-btn-wrap">
+      <button class="btn" id="see-all-btn">모든 기록 보기</button>
+    </div>
+  </div>
+</section>
+
+<section id="all-records">
+  <div class="wrap">
+    <h2 class="section-title">모든 기록</h2>
+    <p class="section-sub">사진을 누르면 원본을 크게 보고, 손글씨를 활자로 읽을 수 있습니다.</p>
+    <div class="filters" id="filters">
+      <button class="filter-btn" data-tag="전체" data-active="true">전체</button>
+      <button class="filter-btn" data-tag="가현">가현</button>
+      <button class="filter-btn" data-tag="지용">지용</button>
+      <button class="filter-btn" data-tag="영현">영현</button>
+      <button class="filter-btn" data-tag="미상">미상</button>
+    </div>
+    <div class="grid" id="grid"></div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2 class="section-title">시간순으로 보기</h2>
+    <p class="section-sub">날짜가 확인되는 자료만 연도순으로 배열했습니다. 연도가 불확실한 자료는 미상으로 남겨둡니다.</p>
+    <div class="timeline" id="timeline"></div>
+  </div>
+</section>
+
+<section class="closing">
+  <p class="big">그때는 몰랐습니다.<br>아이들이 아무렇게나 적어 놓은 종이 한 장을<br>이렇게 오래 들여다보게 될 줄은.</p>
+  <p class="small">우리 가족의 시간을 천천히 기록합니다.</p>
+</section>
+
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal">
+    <button class="modal-close" id="modal-close">닫기 ✕</button>
+    <img class="big" id="modal-img" src="" alt="">
+    <h3 id="modal-title"></h3>
+    <div class="by" id="modal-by"></div>
+    <a class="orig-link" id="modal-orig" href="#" target="_blank" rel="noopener">원본으로 보기 ↗</a>
+    <div class="story-label">작품 이야기</div>
+    <div class="story" id="modal-desc"></div>
+    <button class="text-toggle" id="modal-toggle">글로 읽기 ▾</button>
+    <div class="body-text" id="modal-body"></div>
+  </div>
+</div>
+
+<script src="data.js"></script>
+<script>
+const data = FAMILY_ARCHIVE_DATA;
+const tagClass = a => a ? `tag-${a}` : 'tag-미상';
+const tagLabel = a => a || '미상';
+
+// ── Featured 3 ──
+const featuredIds = ["gahyun-poem-jumeoni", "jiyong-2007-thanks", "gahyun-contract-2009"];
+const featuredMeta = [
+  {label:"어린 시절의 시", num:"①"},
+  {label:"엄마 아빠에게 쓴 편지", num:"②"},
+  {label:"그림·낙서·약속", num:"③"},
+];
+const featuredEl = document.getElementById('featured-cards');
+featuredIds.forEach((id, i) => {
+  const item = data.find(d => d.id === id);
+  const card = document.createElement('div');
+  card.className = 'feature-card';
+  card.innerHTML = `<div class="num">${featuredMeta[i].num}</div>
+    <h3>${featuredMeta[i].label}</h3>
+    <p>${item.title} · ${tagLabel(item.author)}</p>`;
+  card.onclick = () => openModal(item.id);
+  featuredEl.appendChild(card);
+});
+document.getElementById('see-all-btn').onclick = () =>
+  document.getElementById('all-records').scrollIntoView({behavior:'smooth'});
+
+// ── Grid ──
+const gridEl = document.getElementById('grid');
+function renderGrid(filter){
+  gridEl.innerHTML = '';
+  const list = filter === '전체' ? data : data.filter(d => (d.author || '미상') === filter);
+  list.forEach((item, i) => {
+    const tilt = (i % 5 - 2) * 0.6;
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.style.setProperty('--tilt', tilt + 'deg');
+    card.innerHTML = `
+      <div class="pin ${tagClass(item.author)}"></div>
+      <div class="thumb-frame"><img src="${item.thumb}" alt="${item.title}" loading="lazy"></div>
+      <div class="meta">
+        <span class="tag ${tagClass(item.author)}">${tagLabel(item.author)}</span>
+        <span class="year">${item.year || '연도 미상'}</span>
+        <h4>${item.title}</h4>
+      </div>`;
+    card.onclick = () => openModal(item.id);
+    gridEl.appendChild(card);
+  });
+}
+renderGrid('전체');
+
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.onclick = () => {
+    document.querySelectorAll('.filter-btn').forEach(b => b.dataset.active = 'false');
+    btn.dataset.active = 'true';
+    renderGrid(btn.dataset.tag);
+  };
+});
+
+// ── Timeline ──
+const tlEl = document.getElementById('timeline');
+const byYear = {};
+data.forEach(d => {
+  const y = d.year || '연도 미상';
+  if(!byYear[y]) byYear[y] = [];
+  byYear[y].push(d);
+});
+const years = Object.keys(byYear).filter(y => y !== '연도 미상').sort((a,b) => a-b);
+if (byYear['연도 미상']) years.push('연도 미상');
+years.forEach(y => {
+  const block = document.createElement('div');
+  block.className = 'tl-year';
+  const chips = byYear[y].map(item =>
+    `<span class="tl-chip" data-id="${item.id}">${item.title}</span>`).join('');
+  block.innerHTML = `<h4>${y}</h4><div class="tl-items">${chips}</div>`;
+  tlEl.appendChild(block);
+});
+tlEl.querySelectorAll('.tl-chip').forEach(chip => {
+  chip.onclick = () => openModal(chip.dataset.id);
+});
+
+// ── Modal ──
+const overlay = document.getElementById('modal-overlay');
+const modalImg = document.getElementById('modal-img');
+const modalTitle = document.getElementById('modal-title');
+const modalBy = document.getElementById('modal-by');
+const modalOrig = document.getElementById('modal-orig');
+const modalDesc = document.getElementById('modal-desc');
+const modalToggle = document.getElementById('modal-toggle');
+const modalBody = document.getElementById('modal-body');
+
+function openModal(id){
+  const item = data.find(d => d.id === id);
+  if(!item) return;
+  modalImg.src = item.image;
+  modalImg.classList.remove('zoomed');
+  modalTitle.textContent = item.title;
+  modalBy.textContent = `${tagLabel(item.author)}${item.year ? ' · ' + item.year : ''}`;
+  modalOrig.href = item.image;
+  modalDesc.textContent = item.description;
+  modalBody.textContent = item.bodyText;
+  modalBody.classList.remove('open');
+  modalToggle.textContent = '글로 읽기 ▾';
+  overlay.classList.add('open');
+}
+document.getElementById('modal-close').onclick = () => overlay.classList.remove('open');
+overlay.onclick = e => { if(e.target === overlay) overlay.classList.remove('open'); };
+modalImg.onclick = () => modalImg.classList.toggle('zoomed');
+modalToggle.onclick = () => {
+  modalBody.classList.toggle('open');
+  modalToggle.textContent = modalBody.classList.contains('open') ? '글로 읽기 ▴' : '글로 읽기 ▾';
+};
+</script>
+</body>
+</html>
