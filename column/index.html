@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>칼럼 · 토토의 집</title>
+<link rel="stylesheet" href="../style.css">
+<link rel="stylesheet" href="column.css">
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="../index.html"><span class="brand-mark">T</span><span>토토의 집</span></a>
+  <nav class="nav" aria-label="주요 메뉴">
+    <a href="../index.html">홈</a>
+    <a href="index.html" aria-current="page">칼럼</a>
+  </nav>
+  <div class="top-actions">
+    <button class="write-button" id="openColumnWriter" type="button" hidden>새 글쓰기</button>
+    <button class="theme-toggle" id="themeToggle" type="button" aria-label="화면 테마 바꾸기">◐</button>
+  </div>
+</header>
+
+<main class="column-main">
+  <div class="column-hero">
+    <p class="kicker">아빠의 이야기</p>
+    <h1>칼럼</h1>
+    <p class="column-hero-sub">가족에게 남기고 싶은 생각과 글을 여기에 모아둡니다.</p>
+  </div>
+
+  <section id="columnLoginPanel" class="column-login-panel" hidden>
+    <form id="columnLoginForm" class="column-login-form">
+      <input type="email" name="email" placeholder="이메일" autocomplete="username" required>
+      <input type="password" name="password" placeholder="비밀번호" autocomplete="current-password" required>
+      <button type="submit">로그인</button>
+    </form>
+    <p id="columnAuthStatus" class="column-auth-status"></p>
+  </section>
+  <button id="columnLogoutButton" class="column-logout" type="button" hidden>로그아웃</button>
+
+  <div id="columnFeed" class="column-feed"></div>
+</main>
+
+<div class="writer-modal" id="columnWriterModal" hidden>
+  <section class="writer-card" role="dialog" aria-modal="true" aria-labelledby="columnWriterTitle">
+    <button class="modal-close" id="closeColumnWriter" type="button" aria-label="닫기">×</button>
+    <div class="writer-scroll">
+      <div class="writer-head">
+        <p class="kicker">아빠 전용</p>
+        <h2 id="columnWriterTitle">새 칼럼 쓰기</h2>
+      </div>
+      <form id="columnForm" class="column-form">
+        <label>제목<input type="text" name="title" maxlength="100" required></label>
+        <label>표지 사진 (선택)
+          <input type="file" name="cover" id="columnCover" accept="image/*">
+          <img id="columnCoverPreview" class="column-cover-preview" hidden alt="미리보기">
+        </label>
+        <label>내용<textarea name="body" rows="10" maxlength="20000" required></textarea></label>
+        <p id="columnStatus" class="community-status"></p>
+        <button type="submit" class="write-button">올리기</button>
+      </form>
+    </div>
+  </section>
+</div>
+
+<script type="module">
+  import { initColumnAuth, initColumnList, initColumnWriter } from "./column.js";
+  initColumnAuth();
+  initColumnList();
+  initColumnWriter();
+  const root = document.documentElement;
+  const saved = localStorage.getItem("toto-theme");
+  if (saved) root.dataset.theme = saved;
+  document.getElementById("themeToggle")?.addEventListener("click", () => {
+    const next = root.dataset.theme === "dark" ? "light" : "dark";
+    root.dataset.theme = next; localStorage.setItem("toto-theme", next);
+  });
+</script>
+</body>
+</html>
