@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<title>젤리 미로 — 토토의 집</title>
+<style>
+  :root{
+    --bg:#1b1f3b; --wall:#4c5fd5; --wall2:#2c3a99; --path:#121533;
+    --ink:#f2f0ff; --star:#ffd166; --bolt:#7ef9ff; --jelly:#6be675;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;background:var(--bg);color:var(--ink);
+    font-family:"Trebuchet MS","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+    -webkit-user-select:none;user-select:none;touch-action:none;overflow:hidden}
+  #wrap{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:10px}
+  #hud{width:100%;max-width:420px;display:flex;justify-content:space-between;align-items:baseline;font-size:15px}
+  #hud b{font-size:24px;color:var(--star);font-variant-numeric:tabular-nums}
+  #lives{letter-spacing:2px;color:var(--jelly)}
+  canvas{display:block;border-radius:14px;box-shadow:0 12px 40px rgba(0,0,0,.45);background:var(--path);max-width:100%;height:auto}
+  #pad{display:grid;grid-template-columns:repeat(3,64px);grid-template-rows:repeat(3,64px);gap:6px}
+  #pad button{border:0;border-radius:14px;background:#2b3170;color:var(--ink);font-size:24px;cursor:pointer}
+  #pad button:active{background:#4c5fd5}
+  #pad .u{grid-column:2;grid-row:1}#pad .l{grid-column:1;grid-row:2}
+  #pad .r{grid-column:3;grid-row:2}#pad .d{grid-column:2;grid-row:3}
+  #msg{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(18,21,51,.85)}
+  #msg div{text-align:center;padding:28px 36px;border-radius:20px;background:#242a62}
+  #msg h1{font-size:30px;margin-bottom:8px}
+  #msg p{opacity:.85;margin-bottom:18px;line-height:1.5}
+  #msg button{border:0;border-radius:12px;padding:12px 26px;font-size:17px;background:var(--jelly);color:#0d1a10;cursor:pointer;font-weight:700}
+  @media (min-width:700px){#pad{display:none}}
+</style>
+</head>
+<body>
+<div id="wrap">
+  <a href="../../index.html" style="color:#aab2ff;text-decoration:none;font-size:14px;align-self:flex-start;max-width:420px;width:100%">← 토토의 집</a>
+  <div id="hud"><span>점수 <b id="score">0</b></span><span id="level">1단계</span><span id="lives">●●●●●●</span></div>
+  <canvas id="c" tabindex="0"></canvas>
+  <div id="pad">
+    <button class="u" data-d="0,-1">▲</button>
+    <button class="l" data-d="-1,0">◀</button>
+    <button class="r" data-d="1,0">▶</button>
+    <button class="d" data-d="0,1">▼</button>
+  </div>
+</div>
+<div id="msg"><div><h1 id="mTitle">젤리 미로</h1><p id="mBody">별을 모두 모으세요.<br>번개를 먹으면 박쥐를 잠깐 잡을 수 있어요.<br>방향키 / 스와이프 / 버튼으로 이동</p><button id="mBtn">시작</button></div></div>
+
+<script type="module">
+try{
+  const {createClient}=await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');
+  const cfg=await import('../../config.js');
+  window.sb=createClient(cfg.SUPABASE_URL,cfg.SUPABASE_PUBLISHABLE_KEY);
+}catch(e){console.warn('Supabase 연결 실패, 기기 저장으로 대체',e);}
+window.dispatchEvent(new Event('sb-ready'));
+</script>
+<script>
+const MAP=[
+"###############",
+"#......#......#",
+"#.##.#.#.#.##.#",
+"#o##.#...#.##o#",
+"#....#####....#",
+"##.#.......#.##",
+"#..#.##B##.#..#",
+"#.##.#BBB#.##.#",
+"#....#####....#",
+"#.##.......##.#",
+"#..#.##.##.#..#",
+"##.#.#...#.#.##",
+"#....#.P.#....#",
+"#.##.#####.##.#",
+"#o...........o#",
+"#.###.###.###.#",
+"#.............#",
+"###############"];
+const COLS=MAP[0].length, ROWS=MAP.length, T=28;
+const cv=document.getElementById('c'), ctx=cv.getContext('2d');
+cv.width=COLS*T; cv.height=ROWS*T;
+const css=getComputedStyle(document.documentElement), col=n=>css.getPropertyValue(n).trim();
+
+let grid, stars, score=0, lives=6, level=1, player, bats, boltT=0, running=false, dead=0, tick=0, starsLeft=0;
+
+function reset(fullLevel){
+  grid=MAP.map(r=>r.split(''));
+  starsLeft=0; let ps, bs=[];
+  for(let y=0;y<ROWS;y++)for(let x=0;x<COLS;x++){
+    const c=grid[y][x];
+    if(c==='.'||c==='o')starsLeft++;
+    if(c==='P'){ps={x,y};grid[y][x]=' ';}
+    if(c==='B')bs.push({x,y});
+  }
+  spawn(ps,bs);
+}
+function spawn(ps,bs){
+  if(!ps){ps={x:7,y:12};bs=[{x:7,y:6},{x:6,y:7},{x:7,y:7},{x:8,y:7}];}
+  player={x:ps.x*T+T/2,y:ps.y*T+T/2,dx:0,dy:0,wx:0,wy:0,spd:2.2};
+  const hues=['#ff6b9d','#c77dff','#ff9f43','#48dbfb'];
+  bats=bs.map((b,i)=>({x:b.x*T+T/2,y:b.y*T+T/2,dx:0,dy:-1,home:b,color:hues[i%4],
+    spd:1.4+level*0.15,wait:i*90,stun:0}));
+  boltT=0; player.spawn={x:player.x,y:player.y}; player.spawnBats=bs;
+}
+const cell=(x,y)=>(grid[y]&&grid[y][x])||'#';
+const walk=(x,y,isBat)=>{const c=cell(x,y);return c!=='#'&&(isBat||c!=='B');};
+const tileOf=e=>({x:Math.floor(e.x/T),y:Math.floor(e.y/T)});
+const centered=e=>Math.abs(e.x%T-T/2)<1.5&&Math.abs(e.y%T-T/2)<1.5;
+
+function move(e,isBat){
+  const t=tileOf(e);
+  if(centered(e)){
+    e.x=t.x*T+T/2;e.y=t.y*T+T/2;
+    if(!isBat&&(e.wx||e.wy)&&walk(t.x+e.wx,t.y+e.wy,false)){e.dx=e.wx;e.dy=e.wy;}
+    if(!walk(t.x+e.dx,t.y+e.dy,isBat)){e.dx=0;e.dy=0;}
+  }
+  e.x+=e.dx*e.spd;e.y+=e.dy*e.spd;
+}
+function batAI(b){
+  if(b.wait>0){b.wait--;return;}
+  const t=tileOf(b);
+  if(centered(b)){
+    b.x=t.x*T+T/2;b.y=t.y*T+T/2;
+    const dirs=[[1,0],[-1,0],[0,1],[0,-1]].filter(([dx,dy])=>walk(t.x+dx,t.y+dy,true)&&!(dx===-b.dx&&dy===-b.dy&&Math.random()<0.9));
+    if(dirs.length){
+      const pt=tileOf(player);
+      let pick;
+      if(b.stun>0||Math.random()<0.25)pick=dirs[Math.floor(Math.random()*dirs.length)];
+      else pick=dirs.reduce((a,d)=>{const s=Math.hypot(t.x+d[0]-pt.x,t.y+d[1]-pt.y);return s<a.s?{s,d}:a;},{s:1e9}).d;
+      b.dx=pick[0];b.dy=pick[1];
+    }
+  }
+  const sp=b.stun>0?b.spd*0.55:b.spd;
+  b.x+=b.dx*sp;b.y+=b.dy*sp;
+}
+function update(){
+  tick++;
+  if(dead>0){dead--;if(dead===0){lives--;setLives();if(lives<=0)gameOver();else spawn(null);}return;}
+  move(player,false);
+  const t=tileOf(player), c=cell(t.x,t.y);
+  if((c==='.'||c==='o')&&centered(player)){
+    grid[t.y][t.x]=' ';starsLeft--;score+=c==='o'?50:10;
+    if(c==='o')boltT=420;
+    setScore();
+    if(starsLeft===0){level++;document.getElementById('level').textContent=level+'단계';reset();}
+  }
+  if(boltT>0)boltT--;
+  for(const b of bats){
+    if(boltT>0&&b.stun===0)b.stun=1; if(boltT===0)b.stun=0;
+    batAI(b);
+    if(Math.hypot(b.x-player.x,b.y-player.y)<T*0.6){
+      if(b.stun>0){score+=200;setScore();b.x=b.home.x*T+T/2;b.y=b.home.y*T+T/2;b.wait=120;b.stun=0;b.dy=-1;b.dx=0;}
+      else if(dead===0){dead=60;}
+    }
+  }
+}
+function setScore(){document.getElementById('score').textContent=score;}
+function setLives(){document.getElementById('lives').textContent='●'.repeat(Math.max(0,lives));}
+
+function draw(){
+  ctx.fillStyle=col('--path');ctx.fillRect(0,0,cv.width,cv.height);
+  for(let y=0;y<ROWS;y++)for(let x=0;x<COLS;x++){
+    const c=grid[y][x];
+    if(c==='#'){
+      ctx.fillStyle=col('--wall2');ctx.fillRect(x*T,y*T,T,T);
+      ctx.fillStyle=col('--wall');
+      const r=6; ctx.beginPath();ctx.roundRect(x*T+3,y*T+3,T-6,T-6,r);ctx.fill();
+    }else if(c==='.'){
+      ctx.fillStyle=col('--star');drawStar(x*T+T/2,y*T+T/2,4);
+    }else if(c==='o'){
+      const pulse=1+0.15*Math.sin(tick/6);
+      ctx.fillStyle=col('--bolt');drawBolt(x*T+T/2,y*T+T/2,9*pulse);
+    }
+  }
+  for(const b of bats)drawBat(b);
+  drawJelly(player);
+}
+function drawStar(cx,cy,r){ctx.beginPath();for(let i=0;i<10;i++){const a=Math.PI/5*i-Math.PI/2,rr=i%2?r*0.45:r;ctx.lineTo(cx+Math.cos(a)*rr,cy+Math.sin(a)*rr);}ctx.closePath();ctx.fill();}
+function drawBolt(cx,cy,s){ctx.beginPath();ctx.moveTo(cx+s*0.2,cy-s);ctx.lineTo(cx-s*0.5,cy+s*0.1);ctx.lineTo(cx,cy+s*0.1);ctx.lineTo(cx-s*0.2,cy+s);ctx.lineTo(cx+s*0.5,cy-s*0.1);ctx.lineTo(cx,cy-s*0.1);ctx.closePath();ctx.fill();}
+function drawJelly(p){
+  const sq=dead>0?1-dead/60:1, wob=1+0.06*Math.sin(tick/4);
+  const w=T*0.78*wob*sq, h=T*0.7/wob*sq;
+  ctx.fillStyle=boltT>0&&tick%10<5?'#c8ffcd':col('--jelly');
+  ctx.beginPath();ctx.roundRect(p.x-w/2,p.y-h/2+2,w,h,[10,10,6,6]);ctx.fill();
+  // eyes look in travel direction
+  const ox=p.dx*3, oy=p.dy*2;
+  ctx.fillStyle='#fff';ctx.beginPath();ctx.ellipse(p.x-5+ox,p.y-2+oy,4,4.5,0,0,7);ctx.ellipse(p.x+5+ox,p.y-2+oy,4,4.5,0,0,7);ctx.fill();
+  ctx.fillStyle='#152018';ctx.beginPath();ctx.arc(p.x-5+ox*1.4,p.y-1+oy,2,0,7);ctx.arc(p.x+5+ox*1.4,p.y-1+oy,2,0,7);ctx.fill();
+  ctx.strokeStyle='#152018';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(p.x,p.y+5,3.5,0.15*Math.PI,0.85*Math.PI);ctx.stroke();
+}
+const totoImg=new Image(); let totoReady=false;
+totoImg.onload=()=>{totoReady=true;}; totoImg.src='toto.png';
+function drawBat(b){
+  const stunned=b.stun>0, bob=Math.sin(tick/6+b.home.x)*1.5, r=T*0.48;
+  ctx.save(); ctx.translate(b.x,b.y+bob);
+  if(stunned){ctx.globalAlpha=(boltT<90&&tick%12<6)?0.45:0.7;}
+  if(totoReady){
+    ctx.beginPath();ctx.arc(0,0,r,0,7);ctx.closePath();ctx.clip();
+    ctx.drawImage(totoImg,-r,-r,r*2,r*2);
+    ctx.restore(); ctx.save(); ctx.translate(b.x,b.y+bob);
+    ctx.strokeStyle=b.color;ctx.lineWidth=2.5;ctx.beginPath();ctx.arc(0,0,r,0,7);ctx.stroke();
+  }else{
+    // 노란 래브라도 얼굴
+    const fur=stunned?'#c9b98f':'#f2d18b', ear=stunned?'#a89570':'#d9b46b';
+    ctx.fillStyle=ear;
+    ctx.beginPath();ctx.ellipse(-r*0.8,r*0.05,r*0.32,r*0.62,-0.25,0,7);ctx.ellipse(r*0.8,r*0.05,r*0.32,r*0.62,0.25,0,7);ctx.fill();
+    ctx.fillStyle=fur;ctx.beginPath();ctx.ellipse(0,0,r*0.82,r*0.78,0,0,7);ctx.fill();
+    ctx.fillStyle='#fbead0';ctx.beginPath();ctx.ellipse(0,r*0.3,r*0.42,r*0.34,0,0,7);ctx.fill();
+    ctx.fillStyle='#3a2a1e';
+    if(stunned){ctx.lineWidth=1.8;ctx.strokeStyle='#3a2a1e';ctx.beginPath();ctx.arc(-r*0.32,-r*0.12,r*0.14,0.1*Math.PI,0.9*Math.PI);ctx.arc(r*0.32,-r*0.12,r*0.14,0.1*Math.PI,0.9*Math.PI);ctx.stroke();}
+    else{ctx.beginPath();ctx.arc(-r*0.32,-r*0.12,r*0.11,0,7);ctx.arc(r*0.32,-r*0.12,r*0.11,0,7);ctx.fill();
+      ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(-r*0.28,-r*0.16,r*0.04,0,7);ctx.arc(r*0.36,-r*0.16,r*0.04,0,7);ctx.fill();}
+    ctx.fillStyle='#2b1f18';ctx.beginPath();ctx.ellipse(0,r*0.22,r*0.16,r*0.12,0,0,7);ctx.fill();
+    ctx.strokeStyle='#2b1f18';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(0,r*0.32);ctx.lineTo(0,r*0.42);ctx.arc(-r*0.1,r*0.42,r*0.1,0,Math.PI*0.9);ctx.moveTo(0,r*0.42);ctx.arc(r*0.1,r*0.42,r*0.1,Math.PI,Math.PI*0.1,true);ctx.stroke();
+    if(!stunned&&tick%40<20){ctx.fillStyle='#e8788a';ctx.beginPath();ctx.ellipse(r*0.12,r*0.6,r*0.12,r*0.16,0,0,7);ctx.fill();}
+    ctx.strokeStyle=b.color;ctx.lineWidth=2;ctx.beginPath();ctx.arc(0,0,r*0.95,0,7);ctx.stroke();
+    if(stunned){ctx.fillStyle='#fff';ctx.font='bold 9px sans-serif';ctx.fillText('z',r*0.6,-r*0.6);}
+  }
+  ctx.restore();
+}
+function loop(){if(running){update();draw();}requestAnimationFrame(loop);}
+function want(dx,dy){player.wx=dx;player.wy=dy;}
+window.addEventListener('keydown',e=>{
+  const m={ArrowUp:[0,-1],ArrowDown:[0,1],ArrowLeft:[-1,0],ArrowRight:[1,0],w:[0,-1],s:[0,1],a:[-1,0],d:[1,0]}[e.key];
+  if(m){want(...m);e.preventDefault();}
+});
+document.querySelectorAll('#pad button').forEach(b=>{
+  const d=b.dataset.d.split(',').map(Number);
+  b.addEventListener('pointerdown',e=>{e.preventDefault();want(...d);});
+});
+let sx,sy;
+cv.addEventListener('pointerdown',e=>{sx=e.clientX;sy=e.clientY;});
+cv.addEventListener('pointerup',e=>{
+  const dx=e.clientX-sx,dy=e.clientY-sy;if(Math.hypot(dx,dy)<20)return;
+  Math.abs(dx)>Math.abs(dy)?want(Math.sign(dx),0):want(0,Math.sign(dy));
+});
+
+const msg=document.getElementById('msg');
+function showMsg(t,b,btn){document.getElementById('mTitle').textContent=t;document.getElementById('mBody').innerHTML=b;document.getElementById('mBtn').textContent=btn;msg.style.display='flex';running=false;}
+const LB_KEY='jellymaze_rank'; let memLB=[];
+function loadLocal(){try{return JSON.parse(localStorage.getItem(LB_KEY)||'[]');}catch(e){return memLB;}}
+function saveLocal(l){memLB=l;try{localStorage.setItem(LB_KEY,JSON.stringify(l));}catch(e){}}
+async function fetchRank(){
+  if(window.sb){const {data,error}=await sb.from('game_scores').select('name,score,level,created_at').eq('game','jelly-maze').order('score',{ascending:false}).limit(10);
+    if(!error&&data)return data;}
+  return loadLocal();
+}
+async function submitRank(entry){
+  if(window.sb){const {error}=await sb.from('game_scores').insert({game:'jelly-maze',...entry});if(!error)return true;}
+  let l=loadLocal();l.push(entry);l.sort((a,b)=>b.score-a.score);saveLocal(l.slice(0,10));return false;
+}
+function rankHTML(l,hl){return '<ol style="text-align:left;display:inline-block;margin:6px 0 4px;font-variant-numeric:tabular-nums;line-height:1.6">'+
+ l.map(r=>'<li'+(hl&&r.name===hl.name&&r.score===hl.score?' style="color:#ffd166;font-weight:700"':'')+'>'+esc(r.name)+' — '+r.score+'점 ('+r.level+'단계)</li>').join('')+'</ol>';}
+const esc=t=>String(t).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+async function gameOver(){
+  running=false; let me=null;
+  if(score>0){
+    let saved='';try{saved=localStorage.getItem('jellymaze_name')||'';}catch(e){}
+    const name=(prompt('이름을 입력하면 가족 순위표에 올라가요',saved)||'').trim().slice(0,10);
+    if(name){try{localStorage.setItem('jellymaze_name',name);}catch(e){} me={name,score,level}; await submitRank(me);}
+  }
+  const lb=await fetchRank();
+  showMsg('토토한테 잡혔어요','최종 점수 '+score+'점, '+level+'단계<br><br>가족 순위'+(window.sb?'':' (이 기기만)')+'<br>'+(lb.length?rankHTML(lb,me):'<span style="opacity:.6">아직 기록 없음</span>'),'다시 하기');
+}
+document.getElementById('mBtn').onclick=()=>{
+  score=0;lives=6;level=1;setScore();setLives();document.getElementById('level').textContent='1단계';
+  reset();msg.style.display='none';running=true;cv.focus();
+};
+showMsg('젤리 미로','별을 모두 모으세요.<br>번개를 먹으면 토토가 졸려서 느려져요. 그때 잡으면 200점!<br>방향키 / 스와이프 / 버튼으로 이동','시작');
+reset();draw();loop();
+fetchRank().then(lb=>{if(lb.length)document.getElementById('mBody').innerHTML+='<br><br>가족 순위<br>'+rankHTML(lb);});
+</script>
+</body>
+</html>
