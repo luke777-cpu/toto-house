@@ -1,9 +1,77 @@
-<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>게임 — 토토의 집</title>
-<style>body{margin:0;background:#0b0e24;color:#f2f0ff;font-family:"Apple SD Gothic Neo","Malgun Gothic",sans-serif;display:flex;flex-direction:column;align-items:center;padding:28px 16px;gap:16px}
-a.back{color:#aab2ff;text-decoration:none;align-self:flex-start;max-width:420px;width:100%}h1{font-size:26px;margin:4px 0 8px}
-a.card{display:block;width:100%;max-width:420px;background:#1c2150;border-radius:16px;padding:18px 20px;text-decoration:none;color:inherit;box-shadow:0 10px 30px rgba(0,0,0,.4)}
-a.card h2{margin:0 0 6px;font-size:19px;color:#ffd166}a.card p{margin:0;opacity:.85;font-size:14px;line-height:1.5}</style></head>
-<body><a class="back" href="../index.html">← 토토의 집</a><h1>가족 게임방</h1>
-<a class="card" href="jelly-maze/index.html"><h2>젤리 미로</h2><p>토토를 피해 미로의 별을 모두 모으기. 번개를 먹으면 토토가 졸려요.</p></a>
-<a class="card" href="star-shooter/index.html"><h2>별똥별 슈터</h2><p>젤리 로켓으로 급강하하는 우주 생물을 격추. 급강하 중 격추는 2배 점수.</p></a>
-<p style="opacity:.6;font-size:13px">점수는 가족 순위표에 이름별 최고점으로 기록됩니다.</p></body></html>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>가족 게임방 · 토토의 집</title>
+<link rel="stylesheet" href="../style.css">
+<style>
+  .games-main{max-width:920px;margin:0 auto;padding:40px 20px 80px}
+  .games-hero{margin-bottom:28px}
+  .games-hero h1{margin:6px 0 8px;font-size:34px}
+  .games-hero p{color:var(--muted);margin:0}
+  .game-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px}
+  .game-card{display:block;border-radius:18px;padding:22px 22px 20px;text-decoration:none;color:#f2f0ff;position:relative;overflow:hidden;box-shadow:0 12px 32px rgba(0,0,0,.18);transition:transform .15s}
+  .game-card:hover{transform:translateY(-3px)}
+  .game-card .tag{font-size:12px;opacity:.75;letter-spacing:.04em}
+  .game-card h2{margin:6px 0 8px;font-size:22px;color:#ffd166}
+  .game-card p{margin:0;font-size:14px;line-height:1.55;opacity:.9}
+  .game-card .go{display:inline-block;margin-top:14px;padding:8px 14px;border-radius:999px;background:rgba(255,255,255,.14);font-size:13px;font-weight:600}
+  .g1{background:linear-gradient(135deg,#1b1f3b,#2c3a99)}
+  .g2{background:linear-gradient(135deg,#0b0e24,#3a2a5e)}
+  .g3{background:linear-gradient(135deg,#111,#3a2a1a)}
+  .games-note{margin-top:26px;color:var(--muted);font-size:14px}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="../index.html"><span class="brand-mark">T</span><span>토토의 집</span></a>
+  <nav class="nav" aria-label="주요 메뉴">
+    <a href="../index.html">홈</a>
+    <a href="../gallery.html">가족 앨범</a>
+    <a href="../memories.html">어린 시절</a>
+    <a href="../family-archive/index.html">아이들의 기록</a>
+    <a href="../column/index.html">칼럼</a>
+    <a href="index.html" aria-current="page">게임</a>
+  </nav>
+  <div class="top-actions">
+    <button class="theme-toggle" id="themeToggle" type="button" aria-label="화면 테마 바꾸기">◐</button>
+  </div>
+</header>
+
+<main class="games-main">
+  <div class="games-hero">
+    <p class="kicker">가족끼리 점수 겨루기</p>
+    <h1>가족 게임방</h1>
+    <p>세 게임 모두 이름별 최고점으로 가족 순위표에 기록됩니다.</p>
+  </div>
+  <div class="game-grid">
+    <a class="game-card g1" href="jelly-maze/index.html">
+      <span class="tag">미로 · 추격</span>
+      <h2>젤리 미로</h2>
+      <p>토토를 피해 미로의 별을 모두 모으기. 번개를 먹으면 토토가 졸려서 잡을 수 있어요.</p>
+      <span class="go">게임 하기 →</span>
+    </a>
+    <a class="game-card g2" href="star-shooter/index.html">
+      <span class="tag">우주 · 슈팅</span>
+      <h2>별똥별 슈터</h2>
+      <p>젤리 로켓으로 급강하하는 우주 생물 격추. 급강하 중 격추는 2배 점수.</p>
+      <span class="go">게임 하기 →</span>
+    </a>
+    <a class="game-card g3" href="brick-breaker/index.html">
+      <span class="tag">아케이드 · 반사</span>
+      <h2>벽돌깨기</h2>
+      <p>패들로 공을 튕겨 벽돌 부수기. 멀티볼·레이저·슬로우 등 아이템 5종, 레벨 무한.</p>
+      <span class="go">게임 하기 →</span>
+    </a>
+  </div>
+  <p class="games-note">폰에서는 화면을 터치·드래그해서 조작하고, PC에서는 방향키를 씁니다.</p>
+</main>
+<script>
+  const t=document.getElementById('themeToggle');
+  const apply=v=>{document.documentElement.dataset.theme=v;};
+  try{const s=localStorage.getItem('theme');if(s)apply(s);}catch(e){}
+  t.onclick=()=>{const v=document.documentElement.dataset.theme==='dark'?'light':'dark';apply(v);try{localStorage.setItem('theme',v);}catch(e){}};
+</script>
+</body>
+</html>
