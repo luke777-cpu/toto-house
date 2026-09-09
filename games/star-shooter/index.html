@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<title>별똥별 슈터 — 토토의 집</title>
+<style>
+  :root{--bg:#0b0e24;--ink:#f2f0ff;--star:#ffd166;--jelly:#6be675;--shot:#9df3ff}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;background:var(--bg);color:var(--ink);font-family:"Trebuchet MS","Apple SD Gothic Neo","Malgun Gothic",sans-serif;-webkit-user-select:none;user-select:none;touch-action:none;overflow:hidden}
+  #wrap{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:8px}
+  #top{width:100%;max-width:400px;display:flex;justify-content:space-between;align-items:baseline;font-size:14px}
+  #top b{font-size:22px;color:var(--star);font-variant-numeric:tabular-nums}
+  #lives{color:var(--jelly);letter-spacing:2px}
+  a.back{color:#aab2ff;text-decoration:none;font-size:14px;align-self:flex-start;max-width:400px;width:100%}
+  canvas{display:block;border-radius:14px;box-shadow:0 12px 40px rgba(0,0,0,.5);background:#070917;max-width:100%;height:auto}
+  #pad{display:flex;gap:10px}
+  #pad button{border:0;border-radius:14px;background:#22275a;color:var(--ink);font-size:22px;width:80px;height:56px;cursor:pointer}
+  #pad button.fire{background:#5a2a3a;width:110px}
+  #pad button:active{background:#4c5fd5}
+  #msg{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(7,9,23,.85)}
+  #msg div{text-align:center;padding:26px 32px;border-radius:20px;background:#1c2150;max-width:92vw}
+  #msg h1{font-size:28px;margin-bottom:8px}
+  #msg p{opacity:.9;margin-bottom:16px;line-height:1.5;font-size:15px}
+  #msg button{border:0;border-radius:12px;padding:12px 26px;font-size:17px;background:var(--jelly);color:#0d1a10;cursor:pointer;font-weight:700}
+  @media (min-width:700px){#pad{display:none}}
+</style>
+</head>
+<body>
+<div id="wrap">
+  <a class="back" href="../../index.html">← 토토의 집</a>
+  <div id="top"><span>점수 <b id="score">0</b></span><span id="wave">1웨이브</span><span id="lives">▲▲▲▲</span></div>
+  <canvas id="c" tabindex="0"></canvas>
+  <div id="pad">
+    <button id="bl">◀</button><button class="fire" id="bf">발사</button><button id="br">▶</button>
+  </div>
+</div>
+<div id="msg"><div><h1 id="mTitle">별똥별 슈터</h1><p id="mBody"></p><button id="mBtn">시작</button></div></div>
+
+<script type="module">
+window.sbInitError='';
+try{
+  const {createClient}=await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');
+  let url,key;
+  try{const cfg=await import('../../config.js');url=cfg.SUPABASE_URL;key=cfg.SUPABASE_PUBLISHABLE_KEY;}
+  catch(e){url='https://xpvffvecdjwkldohuuyl.supabase.co';key='sb_publishable_QWptpKPoqMPtNzYGU_VHDQ_OhPhd8Ca';}
+  window.sb=createClient(url,key);
+}catch(e){window.sbInitError=String(e.message||e);}
+window.dispatchEvent(new Event('sb-ready'));
+</script>
+<script>
+const W=360,H=520, cv=document.getElementById('c'), ctx=cv.getContext('2d'); cv.width=W;cv.height=H;
+const GAME='star-shooter';
+let score=0,lives=4,wave=1,running=false,tick=0,player,shots,eshots,enemies,parts,drops,stars,spread=0,shield=0,waveTimer=0,deadT=0,keys={};
+
+function initStars(){stars=[];for(let i=0;i<70;i++)stars.push({x:Math.random()*W,y:Math.random()*H,s:Math.random()*1.5+0.3,v:Math.random()*0.8+0.3});}
+function newGame(){score=0;lives=4;wave=1;spread=0;shield=90;hud();player={x:W/2,y:H-46,w:26,cool:0};shots=[];eshots=[];parts=[];drops=[];spawnWave();}
+function hud(){document.getElementById('score').textContent=score;document.getElementById('wave').textContent=wave+'웨이브';document.getElementById('lives').textContent='▲'.repeat(Math.max(0,lives));}
+
+// ---- 적 생성: 화면 밖에서 곡선을 그리며 진입해 대형에 정렬, 이후 무작위로 급강하
+const TYPES=[
+  {name:'jelly',hp:1,pts:50,color:'#c77dff'},   // 우주 해파리
+  {name:'rock',hp:2,pts:80,color:'#9aa4b8'},    // 돌덩이
+  {name:'bird',hp:1,pts:120,color:'#ff9f43'},   // 불꽃새 (빠름)
+];
+function spawnWave(){
+  enemies=[];waveTimer=0;
+  const rows=Math.min(3+Math.floor(wave/2),5), cols=7;
+  let idx=0;
+  for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){
+    const t=TYPES[r===0?2:(r===1&&wave>1?1:0)];
+    const side=(idx%2?1:-1);
+    enemies.push({type:t,hp:t.hp,fx:44+c*(W-88)/(cols-1),fy:64+r*38,
+      x:side*40+(side>0?W:0),y:-30-idx*6,state:'enter',t:0,delay:idx*8,
+      cx:W/2+side*160,cy:120+r*20,id:idx,divePhase:0,dx:0,dy:0});
+    idx++;
+  }
+}
+function bez(p0,p1,p2,p3,t){const u=1-t;return u*u*u*p0+3*u*u*t*p1+3*u*t*t*p2+t*t*t*p3;}
+
+function update(){
+  tick++;
+  for(const s of stars){s.y+=s.v;if(s.y>H){s.y=0;s.x=Math.random()*W;}}
+  if(deadT>0){deadT--;if(deadT===0){if(lives<=0){gameOver();return;}player.x=W/2;shield=120;eshots=[];}return;}
+  // 플레이어
+  const dir=(keys.left?-1:0)+(keys.right?1:0);
+  player.x=Math.max(16,Math.min(W-16,player.x+dir*4.2));
+  if(player.cool>0)player.cool--;
+  if(keys.fire&&player.cool===0){
+    shots.push({x:player.x,y:player.y-16,vx:0,vy:-8});
+    if(spread>0){shots.push({x:player.x-6,y:player.y-12,vx:-1.6,vy:-7.5});shots.push({x:player.x+6,y:player.y-12,vx:1.6,vy:-7.5});}
+    player.cool=spread>0?9:12;
+  }
+  if(spread>0)spread--; if(shield>0)shield--;
+  shots=shots.filter(s=>{s.x+=s.vx;s.y+=s.vy;return s.y>-10&&s.x>-10&&s.x<W+10;});
+  // 적
+  waveTimer++;
+  const formSway=Math.sin(tick/50)*14;
+  for(const e of enemies){
+    if(e.state==='enter'){
+      if(e.delay>0){e.delay--;continue;}
+      e.t+=0.014;
+      const sx=e.x0??(e.x0=e.x), sy=e.y0??(e.y0=e.y);
+      e.x=bez(sx,e.cx,e.cx-(e.cx-W/2)*1.6,e.fx,Math.min(e.t,1));
+      e.y=bez(sy,e.cy,e.fy+90,e.fy,Math.min(e.t,1));
+      if(e.t>=1)e.state='form';
+    }else if(e.state==='form'){
+      e.x=e.fx+formSway;e.y=e.fy+Math.sin(tick/20+e.id)*2;
+      const diveChance=0.0012+wave*0.0004+(waveTimer>900?0.003:0);
+      if(Math.random()<diveChance*(e.type.name==='bird'?1.8:1)){e.state='dive';e.divePhase=0;e.dvx=(player.x-e.x)/90;e.dvy=e.type.name==='bird'?3.4:2.4;}
+      if(Math.random()<0.0009*wave)eshots.push({x:e.x,y:e.y+10,vy:3+wave*0.2});
+    }else if(e.state==='dive'){
+      e.divePhase++;
+      e.x+=e.dvx+Math.sin(e.divePhase/9)*1.8;e.y+=e.dvy;
+      if(e.divePhase%30===10&&Math.random()<0.7)eshots.push({x:e.x,y:e.y+10,vy:3.2+wave*0.2});
+      if(e.y>H+30){e.y=-30;e.x=e.fx;e.state='enter';e.t=0;e.x0=e.fx;e.y0=-30;e.cx=e.fx;e.cy=e.fy-40;}
+    }
+  }
+  eshots=eshots.filter(s=>{s.y+=s.vy;return s.y<H+10;});
+  // 충돌: 내 탄 → 적
+  for(const s of shots){
+    for(const e of enemies){
+      if(e.hp>0&&Math.abs(s.x-e.x)<14&&Math.abs(s.y-e.y)<12){
+        s.y=-99;e.hp--;
+        if(e.hp<=0){score+=e.type.pts*(e.state==='dive'?2:1);burst(e.x,e.y,e.type.color);
+          if(Math.random()<0.12)drops.push({x:e.x,y:e.y,vy:1.6,kind:Math.random()<0.7?'spread':'life'});}
+        break;
+      }
+    }
+  }
+  enemies=enemies.filter(e=>e.hp>0);
+  drops=drops.filter(d=>{d.y+=d.vy;if(Math.abs(d.x-player.x)<18&&Math.abs(d.y-player.y)<18){
+      if(d.kind==='spread'){spread=540;score+=30;}else{lives=Math.min(lives+1,6);}burst(d.x,d.y,'#ffd166');return false;}return d.y<H+10;});
+  // 피격
+  if(shield===0){
+    let hit=false;
+    for(const s of eshots)if(Math.abs(s.x-player.x)<10&&Math.abs(s.y-player.y)<12){hit=true;s.y=H+99;}
+    for(const e of enemies)if(e.state==='dive'&&Math.abs(e.x-player.x)<18&&Math.abs(e.y-player.y)<16){hit=true;e.hp=0;burst(e.x,e.y,e.type.color);}
+    if(hit){lives--;burst(player.x,player.y,'#6be675',26);deadT=50;spread=0;}
+  }
+  enemies=enemies.filter(e=>e.hp>0);
+  hud();
+  if(enemies.length===0){wave++;score+=200;hud();spawnWave();}
+  parts=parts.filter(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=0.05;p.l--;return p.l>0;});
+}
+function burst(x,y,c,n=12){for(let i=0;i<n;i++){const a=Math.random()*7,v=Math.random()*3+0.5;parts.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v,l:20+Math.random()*15,c});}}
+
+// ---- 그리기
+function draw(){
+  ctx.fillStyle='#070917';ctx.fillRect(0,0,W,H);
+  for(const s of stars){ctx.fillStyle=`rgba(255,255,255,${0.3+s.s*0.4})`;ctx.fillRect(s.x,s.y,s.s,s.s);}
+  for(const e of enemies)drawEnemy(e);
+  ctx.fillStyle='#9df3ff';for(const s of shots){ctx.fillRect(s.x-1.5,s.y-6,3,12);}
+  ctx.fillStyle='#ff6b9d';for(const s of eshots){ctx.beginPath();ctx.arc(s.x,s.y,3,0,7);ctx.fill();}
+  for(const d of drops){ctx.fillStyle=d.kind==='spread'?'#ffd166':'#6be675';drawStar(d.x,d.y,8+Math.sin(tick/5));if(d.kind==='life'){ctx.fillStyle='#0d1a10';ctx.font='bold 9px sans-serif';ctx.textAlign='center';ctx.fillText('+1',d.x,d.y+3);}}
+  if(deadT===0)drawPlayer();
+  for(const p of parts){ctx.globalAlpha=p.l/35;ctx.fillStyle=p.c;ctx.fillRect(p.x,p.y,3,3);}ctx.globalAlpha=1;
+}
+function drawStar(cx,cy,r){ctx.beginPath();for(let i=0;i<10;i++){const a=Math.PI/5*i-Math.PI/2,rr=i%2?r*0.45:r;ctx.lineTo(cx+Math.cos(a)*rr,cy+Math.sin(a)*rr);}ctx.closePath();ctx.fill();}
+function drawPlayer(){
+  const {x,y}=player;
+  if(shield>0&&tick%8<4){ctx.strokeStyle='rgba(157,243,255,.7)';ctx.lineWidth=2;ctx.beginPath();ctx.arc(x,y,20,0,7);ctx.stroke();}
+  // 젤리 로켓: 둥근 초록 몸통 + 작은 날개 + 불꽃
+  ctx.fillStyle='#ff9f43';ctx.beginPath();ctx.moveTo(x-5,y+12);ctx.lineTo(x,y+18+Math.random()*6);ctx.lineTo(x+5,y+12);ctx.fill();
+  ctx.fillStyle='#3d8f46';ctx.beginPath();ctx.moveTo(x-16,y+12);ctx.lineTo(x-6,y-2);ctx.lineTo(x-6,y+12);ctx.moveTo(x+16,y+12);ctx.lineTo(x+6,y-2);ctx.lineTo(x+6,y+12);ctx.fill();
+  ctx.fillStyle=spread>0&&tick%10<5?'#c8ffcd':'#6be675';ctx.beginPath();ctx.roundRect(x-8,y-16,16,28,[8,8,4,4]);ctx.fill();
+  ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(x-3,y-6,2.5,0,7);ctx.arc(x+3,y-6,2.5,0,7);ctx.fill();
+  ctx.fillStyle='#152018';ctx.beginPath();ctx.arc(x-3,y-6,1.2,0,7);ctx.arc(x+3,y-6,1.2,0,7);ctx.fill();
+}
+function drawEnemy(e){
+  const {x,y}=e, n=e.type.name; ctx.save();ctx.translate(x,y);
+  if(n==='jelly'){
+    ctx.fillStyle=e.type.color;ctx.beginPath();ctx.arc(0,-2,10,Math.PI,0);ctx.lineTo(10,2);ctx.lineTo(-10,2);ctx.fill();
+    ctx.strokeStyle=e.type.color;ctx.lineWidth=2;for(let i=-1;i<=1;i++){ctx.beginPath();ctx.moveTo(i*6,2);ctx.quadraticCurveTo(i*6+Math.sin(tick/6+i)*3,8,i*6,13);ctx.stroke();}
+    ctx.fillStyle='#fff';ctx.fillRect(-5,-5,3,3);ctx.fillRect(2,-5,3,3);
+  }else if(n==='rock'){
+    ctx.fillStyle=e.hp>1?e.type.color:'#6f7891';ctx.beginPath();
+    for(let i=0;i<7;i++){const a=i/7*Math.PI*2,r=9+((i*7)%4);ctx.lineTo(Math.cos(a)*r,Math.sin(a)*r);}ctx.closePath();ctx.fill();
+    ctx.fillStyle='#2a2f44';ctx.fillRect(-4,-2,3,3);ctx.fillRect(2,1,2,2);
+  }else{
+    ctx.fillStyle=e.type.color;const f=Math.sin(tick/4)*4;
+    ctx.beginPath();ctx.moveTo(0,-6);ctx.lineTo(-14,-2+f);ctx.lineTo(-4,4);ctx.lineTo(0,10);ctx.lineTo(4,4);ctx.lineTo(14,-2+f);ctx.closePath();ctx.fill();
+    ctx.fillStyle='#ffe08a';ctx.beginPath();ctx.arc(0,0,3,0,7);ctx.fill();
+  }
+  ctx.restore();
+}
+
+// ---- 입력
+window.addEventListener('keydown',e=>{
+  if(e.key==='ArrowLeft'||e.key==='a')keys.left=true;
+  if(e.key==='ArrowRight'||e.key==='d')keys.right=true;
+  if(e.key===' '||e.key==='ArrowUp'||e.key==='w'){keys.fire=true;e.preventDefault();}
+});
+window.addEventListener('keyup',e=>{
+  if(e.key==='ArrowLeft'||e.key==='a')keys.left=false;
+  if(e.key==='ArrowRight'||e.key==='d')keys.right=false;
+  if(e.key===' '||e.key==='ArrowUp'||e.key==='w')keys.fire=false;
+});
+function hold(id,k){const b=document.getElementById(id);b.addEventListener('pointerdown',e=>{e.preventDefault();keys[k]=true;});
+  ['pointerup','pointerleave','pointercancel'].forEach(ev=>b.addEventListener(ev,()=>{keys[k]=false;}));}
+hold('bl','left');hold('br','right');hold('bf','fire');
+// 캔버스 터치: 드래그로 이동 + 누르는 동안 발사
+let drag=false;
+cv.addEventListener('pointerdown',e=>{drag=true;keys.fire=true;movePtr(e);});
+cv.addEventListener('pointermove',e=>{if(drag)movePtr(e);});
+['pointerup','pointerleave','pointercancel'].forEach(ev=>cv.addEventListener(ev,()=>{drag=false;keys.fire=false;}));
+function movePtr(e){const r=cv.getBoundingClientRect();const x=(e.clientX-r.left)/r.width*W;if(running)player.x=Math.max(16,Math.min(W-16,x));}
+
+// ---- 순위 (가족 공유)
+const LB_KEY='starshooter_rank';let memLB=[],sbError='';
+function loadLocal(){try{return JSON.parse(localStorage.getItem(LB_KEY)||'[]');}catch(e){return memLB;}}
+function saveLocal(l){memLB=l;try{localStorage.setItem(LB_KEY,JSON.stringify(l));}catch(e){}}
+const esc=t=>String(t).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+async function fetchRank(){
+  if(window.sb){const {data,error}=await sb.from('game_scores').select('name,score,level').eq('game',GAME).order('score',{ascending:false}).limit(200);
+    if(error)sbError=error.message;else if(data){const best=new Map();
+      for(const r of data){const b=best.get(r.name);if(!b||r.score>b.score)best.set(r.name,{...r,plays:(b?b.plays:0)+1});else b.plays++;}
+      return [...best.values()].sort((a,b)=>b.score-a.score).slice(0,10);}}
+  return loadLocal();
+}
+async function submitRank(entry){
+  if(window.sb){const {error}=await sb.from('game_scores').insert({game:GAME,...entry});if(!error)return true;sbError=error.message;}
+  let l=loadLocal();l.push(entry);l.sort((a,b)=>b.score-a.score);saveLocal(l.slice(0,10));return false;
+}
+function rankHTML(l,hl){return '<ol style="text-align:left;display:inline-block;margin:6px 0 4px;font-variant-numeric:tabular-nums;line-height:1.6">'+
+ l.map(r=>'<li'+(hl&&r.name===hl.name&&r.score===hl.score?' style="color:#ffd166;font-weight:700"':'')+'>'+esc(r.name)+' — '+r.score+'점 ('+r.level+'웨이브'+(r.plays?', '+r.plays+'판':'')+')</li>').join('')+'</ol>';}
+const rankTitle=()=>'가족 순위 (각자 최고점)'+(window.sb&&!sbError?'':' — 연결 안 됨: '+esc(sbError||window.sbInitError||'알 수 없음'));
+
+const msg=document.getElementById('msg');
+function showMsg(t,b,btn){document.getElementById('mTitle').textContent=t;document.getElementById('mBody').innerHTML=b;document.getElementById('mBtn').textContent=btn;msg.style.display='flex';running=false;}
+async function gameOver(){
+  running=false;let me=null;
+  if(score>0){let saved='';try{saved=localStorage.getItem('jellymaze_name')||'';}catch(e){}
+    const name=(prompt('이름을 입력하면 가족 순위표에 올라가요',saved)||'').trim().slice(0,10);
+    if(name){try{localStorage.setItem('jellymaze_name',name);}catch(e){}me={name,score,level:wave};await submitRank(me);}}
+  const lb=await fetchRank();
+  showMsg('격추당했어요','최종 점수 '+score+'점, '+wave+'웨이브<br><br>'+rankTitle()+'<br>'+(lb.length?rankHTML(lb,me):'<span style="opacity:.6">아직 기록 없음</span>'),'다시 하기');
+}
+document.getElementById('mBtn').onclick=()=>{newGame();msg.style.display='none';running=true;cv.focus();};
+const intro='아래에서 위로 쏘는 우주 슈팅.<br>← → 이동, 스페이스 발사 (폰: 화면 드래그하면 자동 발사)<br>급강하 중인 적은 2배 점수, 노란 별은 3방향 탄, 초록 별은 목숨 +1';
+showMsg('별똥별 슈터',intro,'시작');
+window.addEventListener('sb-ready',()=>fetchRank().then(lb=>{document.getElementById('mBody').innerHTML=intro+'<br><br>'+rankTitle()+'<br>'+(lb.length?rankHTML(lb):'<span style="opacity:.6">아직 기록 없음</span>');}));
+initStars();newGame();
+(function loop(){if(running)update();draw();requestAnimationFrame(loop);})();
+</script>
+</body>
+</html>
