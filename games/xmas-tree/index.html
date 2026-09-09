@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<title>크리스마스 트리 꾸미기 — 토토의 집</title>
+<style>
+  :root{--bg:#0d1b2a;--panel:#14263a;--ink:#f4f1ea;--gold:#ffd166;--red:#ff4d5a;--green:#2fbf71}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;background:var(--bg);color:var(--ink);font-family:"Apple SD Gothic Neo","Malgun Gothic","Trebuchet MS",sans-serif;-webkit-user-select:none;user-select:none;overflow:hidden}
+  #app{height:100%;display:flex;flex-direction:column}
+  header{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;font-size:14px}
+  header a{color:#aab2ff;text-decoration:none}
+  header b{color:var(--gold);font-size:16px}
+  #stage{flex:1;position:relative;overflow:hidden;touch-action:none}
+  #stage svg{position:absolute;inset:0;width:100%;height:100%}
+  .orn{position:absolute;transform:translate(-50%,-50%);font-size:30px;line-height:1;cursor:grab;filter:drop-shadow(0 2px 2px rgba(0,0,0,.5));touch-action:none}
+  .orn.big{font-size:38px}.orn.small{font-size:24px}
+  .orn.sel{outline:2px dashed var(--gold);border-radius:8px}
+  #snow{position:absolute;inset:0;pointer-events:none}
+  #tools{background:var(--panel);padding:10px 12px 12px;display:flex;flex-direction:column;gap:8px}
+  .row{display:flex;gap:8px;align-items:center;overflow-x:auto;padding-bottom:2px}
+  .pal{font-size:28px;width:46px;height:46px;flex:0 0 46px;border-radius:12px;background:#1e3550;display:flex;align-items:center;justify-content:center;cursor:pointer;border:2px solid transparent}
+  .pal.on{border-color:var(--gold);background:#2a4a6e}
+  .pal.c{font-size:0;position:relative}.pal.c::after{content:"";width:22px;height:22px;border-radius:50%;background:var(--ball);box-shadow:inset -4px -4px 6px rgba(0,0,0,.35),inset 3px 3px 4px rgba(255,255,255,.5)}
+  button.t{border:0;border-radius:10px;padding:8px 12px;background:#1e3550;color:var(--ink);font-size:13px;cursor:pointer;white-space:nowrap}
+  button.t.on{background:var(--green);color:#062}
+  button.t.warn{background:var(--red);color:#fff}
+  #seq{display:grid;grid-template-columns:auto repeat(16,1fr);gap:3px;width:100%}
+  #seq .lab{font-size:11px;color:#9fb;align-self:center;padding-right:4px;width:26px}
+  #seq .cell{aspect-ratio:1;border-radius:4px;background:#1e3550;cursor:pointer;min-height:14px}
+  #seq .cell.on{background:var(--gold)}
+  #seq .cell.beat{background:#2a4a6e}#seq .cell.beat.on{background:#ffe9a8}
+  #seq .cell.now{outline:1px solid #fff}
+  #musicPanel{display:none}#musicPanel.show{display:flex;flex-direction:column;gap:6px}
+  #hint{font-size:12px;color:#9fb0c4;text-align:center}
+  #toast{position:fixed;left:50%;top:14px;transform:translateX(-50%);background:#000c;padding:10px 16px;border-radius:12px;font-size:14px;display:none;z-index:9}
+  #done{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.6);z-index:8}
+  #done div{background:#1c2b3f;border-radius:20px;padding:24px 28px;text-align:center;max-width:88vw}
+  #done h1{color:var(--gold);margin-bottom:8px}#done p{margin-bottom:14px;font-size:14px;line-height:1.5}
+  #done input{width:100%;padding:8px;border-radius:8px;border:0;font-size:12px;margin-bottom:10px;background:#0d1b2a;color:#cde}
+</style>
+</head>
+<body>
+<div id="app">
+  <header><a href="../index.html">← 게임방</a><b id="title">크리스마스 트리 꾸미기</b><span id="count">장식 0개</span></header>
+  <div id="stage">
+    <svg viewBox="0 0 360 460" preserveAspectRatio="xMidYMid meet" id="svg">
+      <defs>
+        <radialGradient id="glow"><stop offset="0" stop-color="#fff" stop-opacity=".9"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+        <linearGradient id="trunk" x1="0" x2="1"><stop offset="0" stop-color="#5a3a1e"/><stop offset=".5" stop-color="#8b5a2b"/><stop offset="1" stop-color="#4a2e15"/></linearGradient>
+        <linearGradient id="tier" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2f8f5a"/><stop offset="1" stop-color="#15603a"/></linearGradient>
+      </defs>
+      <rect x="0" y="380" width="360" height="80" fill="#e8eef5"/>
+      <ellipse cx="180" cy="390" rx="150" ry="18" fill="#fff" opacity=".8"/>
+      <rect x="165" y="330" width="30" height="60" rx="4" fill="url(#trunk)"/>
+      <g id="tree">
+        <path d="M180 250 L60 350 L300 350 Z" fill="url(#tier)"/>
+        <path d="M180 180 L80 285 L280 285 Z" fill="url(#tier)"/>
+        <path d="M180 115 L100 215 L260 215 Z" fill="url(#tier)"/>
+        <path d="M180 60 L120 150 L240 150 Z" fill="url(#tier)"/>
+        <path d="M180 250 L60 350 L300 350 Z" fill="none" stroke="#9fe0b4" stroke-width="1.5" opacity=".5"/>
+        <path d="M180 180 L80 285 L280 285 Z" fill="none" stroke="#9fe0b4" stroke-width="1.5" opacity=".5"/>
+        <path d="M180 115 L100 215 L260 215 Z" fill="none" stroke="#9fe0b4" stroke-width="1.5" opacity=".5"/>
+        <path d="M180 60 L120 150 L240 150 Z" fill="none" stroke="#9fe0b4" stroke-width="1.5" opacity=".5"/>
+      </g>
+      <g id="lights"></g>
+      <g id="topper" style="display:none"><circle cx="180" cy="55" r="26" fill="url(#glow)"/><polygon points="180,32 186,49 204,49 190,60 195,77 180,67 165,77 170,60 156,49 174,49" fill="#ffd166" stroke="#fff" stroke-width="1.5"/></g>
+    </svg>
+    <canvas id="snow"></canvas>
+    <div id="ornLayer" style="position:absolute;inset:0"></div>
+  </div>
+  <div id="tools">
+    <div class="row" id="palette"></div>
+    <div class="row">
+      <button class="t" id="btnLights">💡 불 켜기</button>
+      <button class="t" id="btnMode">색 바꾸기</button>
+      <button class="t" id="btnStar">⭐ 별 달기</button>
+      <button class="t" id="btnSnow">❄️ 눈</button>
+      <button class="t" id="btnMusic">🎵 음악 만들기</button>
+      <button class="t warn" id="btnDel">선택 삭제</button>
+      <button class="t" id="btnFinish" style="background:var(--gold);color:#432">🎄 트리 완성</button>
+    </div>
+    <div id="musicPanel">
+      <div id="seq"></div>
+      <div class="row">
+        <button class="t" id="btnPlay">▶ 재생</button>
+        <button class="t" id="btnJingle">징글벨 불러오기</button>
+        <button class="t" id="btnClear">지우기</button>
+        <label style="font-size:12px">빠르기 <input type="range" id="tempo" min="80" max="200" value="130" style="vertical-align:middle;width:90px"></label>
+      </div>
+    </div>
+    <div id="hint">장식을 고르고 트리를 누르면 달려요. 끌어서 옮기고, 두 번 누르면 크기가 바뀝니다.</div>
+  </div>
+</div>
+<div id="toast"></div>
+<div id="done"><div><h1>🎄 트리 완성!</h1><p id="doneText"></p><input id="shareUrl" readonly><button class="t" id="btnCopy">링크 복사</button> <button class="t" id="btnClose">계속 꾸미기</button></div></div>
+
+<script>
+// ---------- 장식 팔레트 ----------
+const EMO=['🎁','🔔','🍬','❄️','🧦','🍪','🎀','🍭','🦌','☃️','🕯️','🍎'];
+const BALLS=['#ff4d5a','#ffd166','#2fbf71','#3aa0ff','#c77dff','#ff9f43','#ffffff','#ff77c8'];
+const PAL=[...EMO.map(e=>({k:'e',v:e})),...BALLS.map(c=>({k:'b',v:c}))];
+let cur=0, orns=[], sel=null, lightsOn=false, lightMode=0, star=false, snowOn=false;
+const stage=document.getElementById('stage'), layer=document.getElementById('ornLayer'), svg=document.getElementById('svg');
+const pal=document.getElementById('palette');
+PAL.forEach((p,i)=>{const d=document.createElement('div');d.className='pal'+(p.k==='b'?' c':'');if(p.k==='b')d.style.setProperty('--ball',p.v);else d.textContent=p.v;
+  d.onclick=()=>{cur=i;[...pal.children].forEach((c,j)=>c.classList.toggle('on',j===i));};pal.appendChild(d);});
+pal.children[0].classList.add('on');
+
+// 화면 좌표 <-> SVG 좌표
+function toSvg(cx,cy){const pt=svg.createSVGPoint();pt.x=cx;pt.y=cy;const m=svg.getScreenCTM().inverse();const r=pt.matrixTransform(m);return {x:r.x,y:r.y};}
+function toScreen(x,y){const pt=svg.createSVGPoint();pt.x=x;pt.y=y;const r=pt.matrixTransform(svg.getScreenCTM());const b=stage.getBoundingClientRect();return {x:r.x-b.left,y:r.y-b.top};}
+function inTree(x,y){ // 4단 삼각형 중 하나 안에 있나
+  const tiers=[[250,60,300,350],[180,80,280,285],[115,100,260,215],[60,120,240,150]];
+  return tiers.some(([ty,l,r,by])=>{if(y<ty||y>by)return false;const f=(y-ty)/(by-ty);const hw=(r-l)/2*f;return Math.abs(x-180)<=hw;});
+}
+function ornHTML(o){if(o.k==='e')return o.v;return `<span style="display:inline-block;width:.9em;height:.9em;border-radius:50%;background:${o.v};box-shadow:inset -5px -5px 8px rgba(0,0,0,.35),inset 4px 4px 6px rgba(255,255,255,.55),0 2px 3px rgba(0,0,0,.4)"></span>`;}
+function render(){
+  layer.innerHTML='';
+  orns.forEach((o,i)=>{const d=document.createElement('div');d.className='orn '+(o.s===2?'big':o.s===0?'small':'')+(sel===i?' sel':'');d.innerHTML=ornHTML(o);
+    const p=toScreen(o.x,o.y);d.style.left=p.x+'px';d.style.top=p.y+'px';d.dataset.i=i;layer.appendChild(d);});
+  document.getElementById('count').textContent='장식 '+orns.length+'개';
+}
+// 배치 / 드래그
+let drag=null, lastTap=0;
+stage.addEventListener('pointerdown',e=>{
+  const t=e.target.closest('.orn');
+  if(t){const i=+t.dataset.i;sel=i;drag={i,moved:false};t.setPointerCapture(e.pointerId);
+    const now=Date.now();if(now-lastTap<320){orns[i].s=(orns[i].s+1)%3;beep(880,0.05);}lastTap=now;render();return;}
+  const p=toSvg(e.clientX,e.clientY);
+  if(inTree(p.x,p.y)){orns.push({...PAL[cur],x:p.x,y:p.y,s:1});sel=orns.length-1;beep(660,0.06);render();}
+  else{sel=null;render();}
+});
+stage.addEventListener('pointermove',e=>{if(!drag)return;const p=toSvg(e.clientX,e.clientY);drag.moved=true;orns[drag.i].x=p.x;orns[drag.i].y=p.y;render();});
+stage.addEventListener('pointerup',e=>{if(drag){const o=orns[drag.i];if(drag.moved&&!inTree(o.x,o.y)){orns.splice(drag.i,1);sel=null;beep(220,0.08);}drag=null;render();}});
+document.getElementById('btnDel').onclick=()=>{if(sel!==null){orns.splice(sel,1);sel=null;render();}};
+window.addEventListener('resize',render);
+
+// ---------- 전구 ----------
+const LG=document.getElementById('lights');
+const MODES=[['#ff4d5a','#ffd166','#2fbf71','#3aa0ff'],['#fff4c2','#fff4c2','#fff4c2','#fff4c2'],['#ff77c8','#c77dff','#3aa0ff','#7ef9ff'],['#ff4d5a','#ffffff','#ff4d5a','#ffffff']];
+const bulbs=[];
+(function makeBulbs(){
+  const tiers=[[60,150,120,240],[115,215,100,260],[180,285,80,280],[250,350,60,300]];
+  let n=0;
+  tiers.forEach(([ty,by,l,r],ti)=>{const rows=2+ti;for(let k=0;k<rows;k++){const y=ty+(by-ty)*(0.35+0.6*k/rows);const f=(y-ty)/(by-ty);const hw=(r-l)/2*f-6;const cnt=3+ti+k;
+    for(let j=0;j<cnt;j++){const x=180-hw+2*hw*(j+0.5)/cnt+Math.sin(n)*3;bulbs.push({x,y,ph:Math.random()*6});n++;}}});
+  bulbs.forEach(b=>{const g=document.createElementNS('http://www.w3.org/2000/svg','g');g.innerHTML=`<circle cx="${b.x}" cy="${b.y}" r="9" fill="url(#glow)" class="halo" opacity="0"/><circle cx="${b.x}" cy="${b.y}" r="2.6" fill="#556" class="bulb"/>`;LG.appendChild(g);b.el=g;});
+})();
+function tickLights(t){
+  bulbs.forEach((b,i)=>{const c=MODES[lightMode][i%4];const halo=b.el.children[0],bulb=b.el.children[1];
+    if(!lightsOn){halo.setAttribute('opacity',0);bulb.setAttribute('fill','#556');return;}
+    const on=Math.sin(t/400+b.ph)>-0.2;halo.setAttribute('opacity',on?0.85:0);halo.setAttribute('fill',c);halo.style.fill=c;bulb.setAttribute('fill',on?c:'#334');});
+}
+document.getElementById('btnLights').onclick=function(){lightsOn=!lightsOn;this.classList.toggle('on',lightsOn);this.textContent=lightsOn?'💡 불 끄기':'💡 불 켜기';beep(lightsOn?1046:392,0.08);};
+document.getElementById('btnMode').onclick=()=>{lightMode=(lightMode+1)%MODES.length;if(!lightsOn)document.getElementById('btnLights').click();};
+document.getElementById('btnStar').onclick=function(){star=!star;document.getElementById('topper').style.display=star?'':'none';this.classList.toggle('on',star);beep(1318,0.1);};
+
+// ---------- 눈 ----------
+const sc=document.getElementById('snow'),sx=sc.getContext('2d');let flakes=[];
+function sizeSnow(){sc.width=stage.clientWidth;sc.height=stage.clientHeight;}sizeSnow();window.addEventListener('resize',sizeSnow);
+document.getElementById('btnSnow').onclick=function(){snowOn=!snowOn;this.classList.toggle('on',snowOn);if(snowOn&&!flakes.length)for(let i=0;i<90;i++)flakes.push({x:Math.random()*sc.width,y:Math.random()*sc.height,r:Math.random()*2.5+1,v:Math.random()*0.8+0.4,w:Math.random()*6});};
+function tickSnow(t){sx.clearRect(0,0,sc.width,sc.height);if(!snowOn)return;sx.fillStyle='rgba(255,255,255,.9)';
+  for(const f of flakes){f.y+=f.v;f.x+=Math.sin(t/900+f.w)*0.4;if(f.y>sc.height){f.y=-5;f.x=Math.random()*sc.width;}sx.beginPath();sx.arc(f.x,f.y,f.r,0,7);sx.fill();}}
+
+// ---------- 음악 (16스텝 종소리 시퀀서) ----------
+const NOTES=[{n:'도',f:523.25},{n:'레',f:587.33},{n:'미',f:659.25},{n:'파',f:698.46},{n:'솔',f:783.99},{n:'라',f:880},{n:'시',f:987.77},{n:'도↑',f:1046.5}];
+let grid=Array.from({length:8},()=>Array(16).fill(0)), playing=false, step=0, nextT=0, AC=null;
+const seqEl=document.getElementById('seq');
+function buildSeq(){seqEl.innerHTML='';for(let r=7;r>=0;r--){const lab=document.createElement('div');lab.className='lab';lab.textContent=NOTES[r].n;seqEl.appendChild(lab);
+  for(let c=0;c<16;c++){const d=document.createElement('div');d.className='cell'+(c%4===0?' beat':'');d.dataset.r=r;d.dataset.c=c;d.onclick=()=>{grid[r][c]^=1;d.classList.toggle('on',!!grid[r][c]);if(grid[r][c])bell(NOTES[r].f);};seqEl.appendChild(d);}}}
+buildSeq();
+function refreshSeq(){[...seqEl.querySelectorAll('.cell')].forEach(d=>{d.classList.toggle('on',!!grid[d.dataset.r][d.dataset.c]);});}
+function ac(){if(!AC)AC=new (window.AudioContext||window.webkitAudioContext)();if(AC.state==='suspended')AC.resume();return AC;}
+function bell(f,t){const a=ac();t=t??a.currentTime;const o=a.createOscillator(),o2=a.createOscillator(),g=a.createGain();o.type='sine';o2.type='sine';o.frequency.value=f;o2.frequency.value=f*2.76;
+  const g2=a.createGain();g2.gain.value=0.25;o2.connect(g2);g2.connect(g);o.connect(g);g.connect(a.destination);g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(0.35,t+0.01);g.gain.exponentialRampToValueAtTime(0.0001,t+0.9);o.start(t);o2.start(t);o.stop(t+1);o2.stop(t+1);}
+function beep(f,d){try{const a=ac(),o=a.createOscillator(),g=a.createGain();o.type='triangle';o.frequency.value=f;o.connect(g);g.connect(a.destination);g.gain.setValueAtTime(0.15,a.currentTime);g.gain.exponentialRampToValueAtTime(0.0001,a.currentTime+d);o.start();o.stop(a.currentTime+d);}catch(e){}}
+function scheduler(){if(!playing)return;const a=ac(),bpm=+document.getElementById('tempo').value,dur=60/bpm/2;
+  while(nextT<a.currentTime+0.12){for(let r=0;r<8;r++)if(grid[r][step])bell(NOTES[r].f,nextT);
+    const s=step;setTimeout(()=>{[...seqEl.querySelectorAll('.cell')].forEach(d=>d.classList.toggle('now',+d.dataset.c===s));},(nextT-a.currentTime)*1000);
+    step=(step+1)%16;nextT+=dur;}
+  setTimeout(scheduler,40);}
+const btnPlay=document.getElementById('btnPlay');
+btnPlay.onclick=()=>{playing=!playing;btnPlay.textContent=playing?'■ 멈춤':'▶ 재생';btnPlay.classList.toggle('on',playing);if(playing){step=0;nextT=ac().currentTime+0.05;scheduler();}else{[...seqEl.querySelectorAll('.cell')].forEach(d=>d.classList.remove('now'));}};
+document.getElementById('btnClear').onclick=()=>{grid=grid.map(r=>r.fill(0));refreshSeq();};
+// 징글벨 후렴 (1857년 곡, 퍼블릭 도메인): 미미미 미미미 미솔도레미 / 파파파파 파미미미 미레레미 레솔
+document.getElementById('btnJingle').onclick=()=>{grid=grid.map(r=>r.fill(0));
+  const seq=[2,2,2,-1,2,2,2,-1,2,4,0,1,2,-1,-1,-1];seq.forEach((n,i)=>{if(n>=0)grid[n][i]=1;});refreshSeq();if(!playing)btnPlay.click();};
+document.getElementById('btnMusic').onclick=function(){const p=document.getElementById('musicPanel');p.classList.toggle('show');this.classList.toggle('on');setTimeout(render,50);};
+
+// ---------- 완성 / 공유 ----------
+function encode(){const d={o:orns.map(o=>[o.k==='e'?EMO.indexOf(o.v):EMO.length+BALLS.indexOf(o.v),Math.round(o.x),Math.round(o.y),o.s]),l:lightsOn?1:0,m:lightMode,s:star?1:0,n:snowOn?1:0,g:grid.map(r=>parseInt(r.join(''),2)),t:+document.getElementById('tempo').value,who:owner};
+  return btoa(unescape(encodeURIComponent(JSON.stringify(d))));}
+function decode(h){try{const d=JSON.parse(decodeURIComponent(escape(atob(h))));orns=d.o.map(([i,x,y,s])=>i<EMO.length?{k:'e',v:EMO[i],x,y,s}:{k:'b',v:BALLS[i-EMO.length]||BALLS[0],x,y,s});
+    lightsOn=!!d.l;lightMode=d.m||0;star=!!d.s;grid=d.g.map(n=>n.toString(2).padStart(16,'0').split('').map(Number));document.getElementById('tempo').value=d.t||130;owner=d.who||'';
+    document.getElementById('topper').style.display=star?'':'none';const bl=document.getElementById('btnLights');bl.classList.toggle('on',lightsOn);bl.textContent=lightsOn?'💡 불 끄기':'💡 불 켜기';document.getElementById('btnStar').classList.toggle('on',star);
+    if(d.n)document.getElementById('btnSnow').click();refreshSeq();if(owner)document.getElementById('title').textContent=owner+'의 트리';return true;}catch(e){return false;}}
+let owner='';
+document.getElementById('btnFinish').onclick=()=>{
+  if(!owner){let saved='';try{saved=localStorage.getItem('jellymaze_name')||'';}catch(e){}owner=(prompt('누구의 트리인가요? 이름을 넣어주세요',saved)||'우리 가족').slice(0,10);try{localStorage.setItem('jellymaze_name',owner);}catch(e){}}
+  if(!lightsOn)document.getElementById('btnLights').click();if(!star)document.getElementById('btnStar').click();if(!snowOn)document.getElementById('btnSnow').click();
+  if(grid.some(r=>r.some(Boolean))&&!playing)btnPlay.click();
+  document.getElementById('title').textContent=owner+'의 트리';
+  const url=location.origin+location.pathname+'#'+encode();document.getElementById('shareUrl').value=url;
+  document.getElementById('doneText').textContent=owner+'의 트리, 장식 '+orns.length+'개'+(grid.some(r=>r.some(Boolean))?' + 직접 만든 음악':'')+'. 링크를 가족에게 보내면 똑같이 볼 수 있어요.';
+  document.getElementById('done').style.display='flex';try{history.replaceState(null,'','#'+encode());}catch(e){}
+};
+document.getElementById('btnCopy').onclick=async()=>{const u=document.getElementById('shareUrl');try{await navigator.clipboard.writeText(u.value);toast('링크 복사됨');}catch(e){u.select();document.execCommand('copy');toast('링크 복사됨');}};
+document.getElementById('btnClose').onclick=()=>{document.getElementById('done').style.display='none';};
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.style.display='block';setTimeout(()=>t.style.display='none',1600);}
+
+// ---------- 루프 ----------
+if(location.hash.length>2)decode(location.hash.slice(1));
+render();
+(function loop(t){tickLights(t);tickSnow(t);requestAnimationFrame(loop);})(0);
+</script>
+</body>
+</html>
