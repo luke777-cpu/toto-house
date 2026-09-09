@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#000000">
+<title>벽돌깨기 — 토토의 집</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #000; overflow: hidden; touch-action: none; overscroll-behavior: none;
+    font-family: -apple-system, system-ui, "Noto Sans KR", sans-serif; color: #fff; }
+  canvas { display: block; width: 100vw; height: 100vh; }
+  #ov { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,.55); }
+  #ov.hidden { display: none; }
+  .box { background: #111; border: 1px solid #333; border-radius: 16px; padding: 24px 22px; width: min(320px, 86vw); text-align: center; }
+  .box h2 { margin: 0 0 6px; font-size: 24px; }
+  .box p { margin: 0 0 14px; color: #bbb; font-size: 15px; white-space: pre-line; }
+  .row { display: flex; gap: 8px; justify-content: center; margin-bottom: 12px; }
+  input { flex: 1; min-width: 0; padding: 10px 12px; font-size: 17px; border-radius: 10px; border: 1px solid #444; background: #000; color: #fff; text-align: center; }
+  button { padding: 11px 18px; font-size: 16px; font-weight: 600; border: 0; border-radius: 10px; background: #fff; color: #000; }
+  button.sub { background: #2a2a2a; color: #fff; }
+  ol { text-align: left; margin: 0 0 14px; padding: 0 0 0 26px; font-size: 15px; max-height: 40vh; overflow: auto; }
+  ol li { padding: 4px 0; border-bottom: 1px solid #222; }
+  ol li b { float: right; }
+  ol li.me { color: #ffcc00; }
+  .legend { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 10px; font-size: 13px; color: #aaa; text-align: left; margin-bottom: 16px; }
+  .legend span::before { content: attr(data-k); display: inline-block; width: 20px; height: 20px; line-height: 20px; text-align: center; border-radius: 50%; background: var(--c); color: #000; font-weight: 700; margin-right: 6px; }
+</style>
+</head>
+<body>
+<a href="../index.html" style="position:fixed;top:10px;left:12px;z-index:5;color:#aab2ff;text-decoration:none;font-size:14px">← 게임방</a>
+<canvas id="c"></canvas>
+<div id="ov">
+  <div class="box">
+    <h2 id="ovTitle">벽돌깨기</h2>
+    <p id="ovText"></p>
+    <div id="legend" class="legend"></div>
+    <div id="nameRow" class="row" hidden><input id="nameIn" maxlength="8" placeholder="이름"><button id="saveBtn">저장</button></div>
+    <ol id="rank" hidden></ol>
+    <div class="row" id="btns"></div>
+  </div>
+</div>
+<script type="module">
+window.sbInitError='';
+try{
+  const {createClient}=await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');
+  let url,key;
+  try{const cfg=await import('../../config.js');url=cfg.SUPABASE_URL;key=cfg.SUPABASE_PUBLISHABLE_KEY;}
+  catch(e){url='https://xpvffvecdjwkldohuuyl.supabase.co';key='sb_publishable_QWptpKPoqMPtNzYGU_VHDQ_OhPhd8Ca';}
+  window.sb=createClient(url,key);
+}catch(e){window.sbInitError=String(e.message||e);}
+window.dispatchEvent(new Event('sb-ready'));
+</script>
+<script>
+// ===== 설정 =====
+const BALL_R = 8, PADDLE_H = 14, BASE_PADDLE_W = 90, WIDE_PADDLE_W = 150;
+const DROP_RATE = 0.22, EFFECT_MS = 12000;
+const COLORS = ['#ff3b30','#ff9500','#ffcc00','#34c759','#007aff','#af52de','#ff2d55','#00c7be','#5856d6','#30b0c7'];
+const PU = {
+  M: { name: '멀티볼', color: '#ffcc00' },
+  W: { name: '패들 확장', color: '#34c759' },
+  S: { name: '슬로우', color: '#5ac8fa' },
+  L: { name: '레이저', color: '#ff3b30' },
+  H: { name: '목숨 +1', color: '#ff2d55' },
+};
+const PU_WEIGHTS = { M: 3, W: 3, S: 2, L: 2, H: 1 };
+
+// ===== 상태 =====
+const canvas = document.getElementById('c'), ctx = canvas.getContext('2d');
+let W = 0, H = 0;
+let balls = [], bricks = [], drops = [], lasers = [];
+let paddleX = 0, score = 0, lives = 3, level = 1, running = false;
+let effects = { W: 0, S: 0, L: 0 }, lastLaser = 0;
+let board = [], sbError = '';
+const GAME = 'brick-breaker';
+function loadLocal(){ try { return JSON.parse(localStorage.getItem('brickRank') || '[]'); } catch (e) { return []; } }
+async function fetchRank(){
+  if (window.sb) {
+    const { data, error } = await sb.from('game_scores').select('name,score,level,created_at').eq('game', GAME).order('score', { ascending: false }).limit(200);
+    if (error) sbError = error.message;
+    else if (data) { const best = new Map();
+      for (const r of data) { const b = best.get(r.name); if (!b || r.score > b.score) best.set(r.name, { ...r, t: r.created_at, plays: (b ? b.plays : 0) + 1 }); else b.plays++; }
+      return [...best.values()].sort((a, b) => b.score - a.score).slice(0, 10); }
+  }
+  return loadLocal();
+}
+
+const paddleW = () => effects.W > Date.now() ? WIDE_PADDLE_W : BASE_PADDLE_W;
+const paddleY = () => H - 60;
+const baseSpeed = () => 5 * Math.pow(1.08, level - 1) * (effects.S > Date.now() ? 0.6 : 1);
+
+// ===== 사운드 =====
+let audio = null;
+function beep(freq, dur, type = 'square', vol = 0.15) {
+  try {
+    if (!audio) audio = new (window.AudioContext || window.webkitAudioContext)();
+    if (audio.state === 'suspended') audio.resume();
+    const o = audio.createOscillator(), g = audio.createGain();
+    o.type = type; o.frequency.value = freq;
+    g.gain.setValueAtTime(vol, audio.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, audio.currentTime + dur);
+    o.connect(g).connect(audio.destination); o.start(); o.stop(audio.currentTime + dur);
+  } catch (e) {}
+}
+const snd = {
+  brick: () => beep(880, 0.06), paddle: () => beep(440, 0.05, 'triangle'),
+  pu: () => { beep(523, 0.08); setTimeout(() => beep(784, 0.12), 80); },
+  laser: () => beep(1200, 0.04, 'sawtooth', 0.08),
+  clear: () => { beep(660, 0.1); setTimeout(() => beep(880, 0.1), 100); setTimeout(() => beep(1320, 0.25), 200); },
+  lose: () => beep(150, 0.3, 'sawtooth', 0.2),
+};
+
+// ===== 화면 =====
+function resize() {
+  const dpr = window.devicePixelRatio || 1;
+  W = window.innerWidth; H = window.innerHeight;
+  canvas.width = W * dpr; canvas.height = H * dpr;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  if (!bricks.length) setupLevel();
+  paddleX = Math.min(Math.max(paddleX, paddleW() / 2), W - paddleW() / 2);
+}
+window.addEventListener('resize', resize);
+
+// ===== 레벨 =====
+function setupLevel() {
+  const cols = 7, rows = Math.min(4 + level, 10), toughRows = Math.min(Math.floor(level / 2), 4);
+  const w = (W - 20) / cols, h = 22;
+  bricks = [];
+  for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
+    if (level >= 3 && (r + c + level) % 5 === 0) continue;   // 레벨 3부터 빈칸 패턴
+    const hp = r < toughRows ? 2 : 1;
+    bricks.push({ x: 10 + c * w, y: 95 + r * h, w, h, color: COLORS[r % COLORS.length], hp, maxHp: hp });
+  }
+  drops = []; lasers = []; effects = { W: 0, S: 0, L: 0 };
+  paddleX = W / 2;
+  resetBall();
+}
+function resetBall() {
+  const s = baseSpeed(), a = Math.PI / 2 + (Math.random() < .5 ? .45 : -.45);
+  balls = [{ x: paddleX, y: paddleY() - PADDLE_H / 2 - BALL_R - 1, vx: Math.cos(a) * s, vy: -Math.sin(a) * s }];
+}
+function spawnDrop(x, y) {
+  const pool = Object.entries(PU_WEIGHTS).flatMap(([k, n]) => Array(n).fill(k));
+  drops.push({ x, y, type: pool[Math.floor(Math.random() * pool.length)] });
+}
+function applyPU(t) {
+  snd.pu();
+  if (t === 'M') {
+    const extra = [];
+    for (const b of balls.slice(0, 2)) {
+      const s = Math.hypot(b.vx, b.vy);
+      extra.push({ x: b.x, y: b.y, vx: Math.cos(-2.0) * s, vy: Math.sin(-2.0) * s });
+      extra.push({ x: b.x, y: b.y, vx: Math.cos(-1.1) * s, vy: Math.sin(-1.1) * s });
+    }
+    balls.push(...extra.slice(0, 4));
+  } else if (t === 'H') lives = Math.min(lives + 1, 6);
+  else effects[t] = Date.now() + EFFECT_MS;
+}
+
+// ===== 입력 =====
+canvas.addEventListener('pointerdown', e => movePaddle(e.clientX));
+canvas.addEventListener('pointermove', e => { if (e.buttons || e.pointerType === 'touch') movePaddle(e.clientX); });
+function movePaddle(x) { paddleX = Math.min(Math.max(x, paddleW() / 2), W - paddleW() / 2); }
+
+// ===== 프레임 =====
+function step() {
+  const now = Date.now(), pw = paddleW(), py = paddleY(), s = baseSpeed();
+
+  for (const b of balls) {
+    const cur = Math.hypot(b.vx, b.vy);
+    if (Math.abs(cur - s) > 0.01) { b.vx *= s / cur; b.vy *= s / cur; }
+    b.x += b.vx; b.y += b.vy;
+    if (b.x - BALL_R < 0 || b.x + BALL_R > W) { b.vx = -b.vx; b.x = Math.min(Math.max(b.x, BALL_R), W - BALL_R); }
+    if (b.y - BALL_R < 0) { b.vy = -b.vy; b.y = BALL_R; }
+    if (b.vy > 0 && Math.abs(b.y - py) < BALL_R + PADDLE_H / 2 && Math.abs(b.x - paddleX) < pw / 2 + BALL_R) {
+      const ang = (b.x - paddleX) / (pw / 2) * 1.1;
+      b.vx = Math.sin(ang) * s; b.vy = -Math.cos(ang) * s;
+      b.y = py - PADDLE_H / 2 - BALL_R;
+      snd.paddle();
+    }
+    for (const k of bricks) {
+      if (k.hp <= 0) continue;
+      if (b.x > k.x - BALL_R && b.x < k.x + k.w + BALL_R && b.y > k.y - BALL_R && b.y < k.y + k.h + BALL_R) {
+        hitBrick(k);
+        if (b.x < k.x || b.x > k.x + k.w) b.vx = -b.vx; else b.vy = -b.vy;
+        break;
+      }
+    }
+  }
+  balls = balls.filter(b => b.y - BALL_R <= H);
+
+  if (effects.L > now && now - lastLaser > 350) {
+    lastLaser = now;
+    lasers.push({ x: paddleX - pw / 2 + 8, y: py }, { x: paddleX + pw / 2 - 8, y: py });
+    snd.laser();
+  }
+  for (const l of lasers) {
+    l.y -= 9;
+    for (const k of bricks) {
+      if (k.hp > 0 && l.x > k.x && l.x < k.x + k.w && l.y > k.y && l.y < k.y + k.h) { hitBrick(k); l.y = -99; break; }
+    }
+  }
+  lasers = lasers.filter(l => l.y > 0);
+
+  for (const d of drops) {
+    d.y += 2.6;
+    if (Math.abs(d.y - py) < 16 && Math.abs(d.x - paddleX) < pw / 2 + 12) { applyPU(d.type); d.y = H + 99; }
+  }
+  drops = drops.filter(d => d.y < H + 20);
+
+  if (bricks.every(k => k.hp <= 0)) {
+    running = false; level++; snd.clear();
+    showOverlay('clear');
+    return;
+  }
+  if (!balls.length) {
+    lives--; running = false; snd.lose();
+    drops = []; lasers = [];
+    showOverlay(lives > 0 ? 'continue' : 'gameover');
+  }
+}
+function hitBrick(k) {
+  k.hp--;
+  score += k.hp > 0 ? 5 : 10;
+  snd.brick();
+  if (k.hp <= 0 && Math.random() < DROP_RATE) spawnDrop(k.x + k.w / 2, k.y + k.h / 2);
+}
+
+// ===== 그리기 =====
+function rr(x, y, w, h, r) {
+  ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath();
+}
+function draw() {
+  const now = Date.now(), pw = paddleW(), py = paddleY();
+  ctx.fillStyle = '#000'; ctx.fillRect(0, 0, W, H);
+
+  for (const k of bricks) {
+    if (k.hp <= 0) continue;
+    ctx.globalAlpha = k.hp < k.maxHp ? 0.45 : 1; ctx.fillStyle = k.color;
+    rr(k.x + 2, k.y + 2, k.w - 4, k.h - 4, 4); ctx.fill(); ctx.globalAlpha = 1;
+    if (k.maxHp > 1) { ctx.strokeStyle = 'rgba(255,255,255,.6)'; ctx.lineWidth = 1.5; ctx.stroke(); }
+  }
+  for (const d of drops) {
+    ctx.fillStyle = PU[d.type].color; ctx.beginPath(); ctx.arc(d.x, d.y, 13, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#000'; ctx.font = 'bold 14px system-ui'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(d.type, d.x, d.y + 1);
+  }
+  ctx.fillStyle = '#ff3b30';
+  for (const l of lasers) ctx.fillRect(l.x - 1.5, l.y - 10, 3, 14);
+
+  ctx.fillStyle = effects.L > now ? '#ff3b30' : effects.W > now ? '#34c759' : '#fff';
+  rr(paddleX - pw / 2, py - PADDLE_H / 2, pw, PADDLE_H, PADDLE_H / 2); ctx.fill();
+
+  ctx.fillStyle = '#ffcc00';
+  for (const b of balls) { ctx.beginPath(); ctx.arc(b.x, b.y, BALL_R, 0, Math.PI * 2); ctx.fill(); }
+
+  ctx.fillStyle = '#fff'; ctx.textBaseline = 'top'; ctx.font = 'bold 17px system-ui';
+  ctx.textAlign = 'left'; ctx.fillText(`점수 ${score}`, 16, 18);
+  ctx.textAlign = 'center'; ctx.fillText(`레벨 ${level}`, W / 2, 18);
+  ctx.textAlign = 'right'; ctx.fillText('♥'.repeat(lives), W - 16, 18);
+  let ex = 16;
+  ctx.font = 'bold 12px system-ui'; ctx.textAlign = 'left';
+  for (const t of ['W', 'S', 'L']) {
+    if (effects[t] <= now) continue;
+    const left = (effects[t] - now) / EFFECT_MS;
+    ctx.fillStyle = PU[t].color; rr(ex, 44, 90, 16, 8); ctx.fill();
+    ctx.fillStyle = 'rgba(0,0,0,.35)'; rr(ex + 90 * left, 44, 90 * (1 - left), 16, 8); ctx.fill();
+    ctx.fillStyle = '#000'; ctx.fillText(PU[t].name, ex + 8, 46);
+    ex += 98;
+  }
+}
+function loop() { if (running) step(); draw(); requestAnimationFrame(loop); }
+
+// ===== 오버레이 / 순위 =====
+const $ = id => document.getElementById(id);
+const ov = $('ov');
+function btn(label, fn, sub) { const b = document.createElement('button'); b.textContent = label; if (sub) b.className = 'sub'; b.onclick = fn; return b; }
+function newGame() { score = 0; lives = 3; level = 1; setupLevel(); play(); }
+function play() { ov.classList.add('hidden'); running = true; }
+async function saveRank(name) {
+  const entry = { name: (name || '익명').slice(0, 10), score, level };
+  try { localStorage.setItem('jellymaze_name', entry.name); } catch (e) {}
+  if (window.sb) { const { error } = await sb.from('game_scores').insert({ game: GAME, ...entry }); if (!error) return entry; sbError = error.message; }
+  const t = Date.now(); let l = loadLocal(); l.push({ ...entry, t }); l.sort((a, b) => b.score - a.score);
+  try { localStorage.setItem('brickRank', JSON.stringify(l.slice(0, 10))); } catch (e) {}
+  return entry;
+}
+async function renderRank(me) {
+  const ol = $('rank'); ol.innerHTML = '<li style="list-style:none;color:#777">불러오는 중…</li>'; ol.hidden = false;
+  board = await fetchRank();
+  ol.innerHTML = '';
+  const head = document.createElement('li'); head.style.cssText = 'list-style:none;color:#888;font-size:12px';
+  head.textContent = '가족 순위 (각자 최고점)' + (window.sb && !sbError ? '' : ' — 연결 안 됨: ' + (sbError || window.sbInitError || '알 수 없음')); ol.appendChild(head);
+  if (!board.length) ol.innerHTML += '<li style="list-style:none;color:#777">아직 기록이 없습니다</li>';
+  for (const r of board) {
+    const li = document.createElement('li');
+    li.innerHTML = `${String(r.name).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]))} <small style="color:#888">Lv${r.level}${r.plays ? ' · ' + r.plays + '판' : ''}</small><b>${r.score}</b>`;
+    if (me && r.name === me.name && r.score === me.score) li.className = 'me';
+    ol.appendChild(li);
+  }
+}
+function showOverlay(mode, meT) {
+  ov.classList.remove('hidden');
+  $('legend').innerHTML = ''; $('nameRow').hidden = true; $('rank').hidden = true; $('btns').innerHTML = '';
+  const T = $('ovTitle'), P = $('ovText'), B = $('btns');
+  if (mode === 'start') {
+    T.textContent = '벽돌깨기';
+    P.textContent = '손가락으로 패들을 움직이세요\n떨어지는 아이템을 받으면 효과 발동';
+    for (const [k, v] of Object.entries(PU)) { const s = document.createElement('span'); s.dataset.k = k; s.style.setProperty('--c', v.color); s.textContent = v.name; $('legend').appendChild(s); }
+    B.append(btn('시작', newGame), btn('순위', () => showOverlay('rank'), true));
+  } else if (mode === 'continue') {
+    T.textContent = `목숨 ${lives}개 남음`; P.textContent = `점수 ${score}`;
+    B.append(btn('계속', () => { resetBall(); play(); }));
+  } else if (mode === 'clear') {
+    T.textContent = `레벨 ${level - 1} 클리어!`; P.textContent = `점수 ${score}`;
+    B.append(btn(`레벨 ${level} 시작`, () => { setupLevel(); play(); }));
+  } else if (mode === 'gameover') {
+    T.textContent = '게임 오버'; P.textContent = `점수 ${score} · 레벨 ${level}\n이름을 남기세요`;
+    $('nameRow').hidden = false; let saved=''; try { saved = localStorage.getItem('jellymaze_name') || ''; } catch (e) {} $('nameIn').value = saved; setTimeout(() => $('nameIn').focus(), 50);
+    $('saveBtn').onclick = async () => { $('saveBtn').disabled = true; const me = await saveRank($('nameIn').value.trim()); $('saveBtn').disabled = false; showOverlay('rank', me); };
+    $('nameIn').onkeydown = e => { if (e.key === 'Enter') $('saveBtn').click(); };
+    B.append(btn('저장 안 함', () => showOverlay('start'), true));
+  } else if (mode === 'rank') {
+    T.textContent = '순위'; P.textContent = '';
+    renderRank(meT);
+    B.append(btn('다시 시작', newGame), btn('처음으로', () => showOverlay('start'), true));
+  }
+}
+
+resize();
+showOverlay('start');
+loop();
+</script>
+</body>
+</html>
