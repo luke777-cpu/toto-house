@@ -546,3 +546,26 @@ footer p { margin: 5px 0 0; }
   .writer-head h2{font-size:28px}
 }
 
+
+
+/* ── 방문자 카운터 ───────────────────────────────────── */
+.footer-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  text-align: right;
+}
+.visitor-counter {
+  letter-spacing: .01em;
+}
+.visitor-counter strong {
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+@media (max-width: 760px) {
+  .footer-meta {
+    align-items: flex-start;
+    text-align: left;
+  }
+}
