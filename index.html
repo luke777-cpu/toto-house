@@ -239,10 +239,16 @@
       <strong>토토의 집</strong>
       <p>제주에서 산골까지, 토토와 우리 가족의 생활 기록.</p>
     </div>
-    <p>© <span id="year"></span> Toto House</p>
+    <div class="footer-meta">
+      <p class="visitor-counter" id="visitorCounter" aria-live="polite">
+        오늘 방문 <strong id="todayVisits">–</strong> · 전체 <strong id="totalVisits">–</strong>
+      </p>
+      <p>© <span id="year"></span> Toto House</p>
+    </div>
   </footer>
 
   <script src="script.js"></script>
+  <script type="module" src="visitor-counter.js?v=1"></script>
   <script type="module" src="community.js?v=20260802d"></script>
   <script type="module" src="gallery.js?v=1"></script>
   <script type="module" src="memories.js?v=1"></script>
