@@ -1,0 +1,274 @@
+{
+  "schemaVersion": 1,
+  "units": "meters",
+  "exportAxes": "glTF Y up; Blender Z up",
+  "assets": [
+    {
+      "id": "tree",
+      "file": "assets/tree.glb",
+      "origin": "ground center",
+      "dimensionsBlenderXYZ": [
+        2.6,
+        2.6,
+        3.45
+      ],
+      "animations": [],
+      "triangles": 7652,
+      "bytes": 211272,
+      "source": "Original procedural meshes created for this project",
+      "license": "Original project assets; no external asset license. Reference photographs are excluded. No public distribution granted.",
+      "draft": false,
+      "notes": "Original PBR mesh"
+    },
+    {
+      "id": "star",
+      "file": "assets/star.glb",
+      "origin": "hook",
+      "dimensionsBlenderXYZ": [
+        0.495,
+        0.14,
+        0.47
+      ],
+      "animations": [],
+      "triangles": 40,
+      "bytes": 1912,
+      "source": "Original procedural meshes created for this project",
+      "license": "Original project assets; no external asset license. Reference photographs are excluded. No public distribution granted.",
+      "draft": false,
+      "notes": "Original PBR mesh"
+    },
+    {
+      "id": "ball-red",
+      "file": "assets/ball-red.glb",
+      "origin": "hook",
+      "dimensionsBlenderXYZ": [
+        0.24,
+        0.24,
+        0.291
+      ],
+      "animations": [],
+      "triangles": 1060,
+      "bytes": 30072,
+      "source": "Original procedural meshes created for this project",
+      "license": "Original project assets; no external asset license. Reference photographs are excluded. No public distribution granted.",
+      "draft": false,
+      "notes": "Original PBR mesh"
+    },
+    {
+      "id": "ball-gold",
+      "file": "assets/ball-gold.glb",
+      "origin": "hook",
+      "dimensionsBlenderXYZ": [
+        0.24,
+        0.24,
+        0.291
+      ],
+      "animations": [],
+      "triangles": 1060,
+      "bytes": 29872,
+      "source": "Original procedural meshes created for this project",
+      "license": "Original project assets; no external asset license. Reference photographs are excluded. No public distribution granted.",
+      "draft": false,
+      "notes": "Original PBR mesh"
+    },
+    {
+      "id": "ball-green",
+      "file": "assets/ball-green.glb",
+      "origin": "hook",
+      "dimensionsBlenderXYZ": [
+        0.24,
+        0.24,
+        0.291
+      ],
+      "animations": [],
+      "triangles": 1060,
+      "bytes": 30080,
+      "source": "Original procedural meshes created for this project",
+      "license": "Original project assets; no external asset license. Reference photographs are excluded. No public distribution granted.",
+      "draft": false,
+      "notes": "Original PBR mesh"
+    },
+    {
+      "id": "bell",
+      "file": "assets/bell.glb",
+      "origin": "hook",
+      "dimensionsBlenderXYZ": [
+        0.248,
+        0.248,
+        0.303
+      ],
+      "animations": [],
+      "triangles": 1108,
+      "bytes": 31696,
+      "source": "Original procedural meshes created for this project",
+      "license": "Original project assets; no external asset license. Reference photographs are excluded. No public distribution granted.",
+      "draft": false,
+      "notes": "Original PBR mesh"
+    },
+    {
+      "id": "ribbon",
+      "file": "assets/ribbon.glb",
+      "origin": "hook",
+      "dimensionsBlenderXYZ": [
+        0.407,
+        0.074,
+        0.279
+      ],
+      "animations": [],
+      "triangles": 1536,
+      "bytes": 44320,
+      "source": "Original procedural meshes created for this project",
+      "license": "Original project assets; no external asset license. Reference photographs are excluded. No public distribution granted.",
+      "draft": false,
+      "notes": "Original PBR mesh"
+    },
+    {
+      "id": "candy",
+      "file": "assets/candy.glb",
+      "origin": "hook",
+      "dimensionsBlenderXYZ": [
+        0.176,
+        0.066,
+        0.305
+      ],
+      "animations": [],
+      "triangles": 1552,
+      "bytes": 38536,
+      "source": "Original procedural meshes created for this project",
+      "license": "Original project assets; no external asset license. Reference photographs are excluded. No public distribution granted.",
+      "draft": false,
+      "notes": "Original PBR mesh"
+    },
+    {
+      "id": "snowflake",
+      "file": "assets/snowflake.glb",
+      "origin": "hook",
+      "dimensionsBlenderXYZ": [
+        0.261,
+        0.02,
+        0.29
+      ],
+      "animations": [],
+      "triangles": 864,
+      "bytes": 33764,
+      "source": "Original procedural meshes created for this project",
+      "license": "Original project assets; no external asset license. Reference photographs are excluded. No public distribution granted.",
+      "draft": false,
+      "notes": "Original PBR mesh"
+    },
+    {
+      "id": "gifts",
+      "file": "assets/gifts.glb",
+      "origin": "ground center",
+      "dimensionsBlenderXYZ": [
+        1.265,
+        0.535,
+        0.59
+      ],
+      "animations": [],
+      "triangles": 3024,
+      "bytes": 80356,
+      "source": "Original procedural meshes created for this project",
+      "license": "Original project assets; no external asset license. Reference photographs are excluded. No public distribution granted.",
+      "draft": false,
+      "notes": "Original PBR mesh"
+    },
+    {
+      "id": "environment",
+      "file": "assets/environment.glb",
+      "origin": "ground center",
+      "dimensionsBlenderXYZ": [
+        7.46,
+        7.46,
+        1.9
+      ],
+      "animations": [],
+      "triangles": 4484,
+      "bytes": 156140,
+      "source": "Original procedural meshes created for this project",
+      "license": "Original project assets; no external asset license. Reference photographs are excluded. No public distribution granted.",
+      "draft": false,
+      "notes": "Original PBR mesh"
+    },
+    {
+      "id": "gahyun",
+      "file": "assets/gahyun.glb",
+      "origin": "feet center",
+      "dimensionsBlenderXYZ": [
+        0.666,
+        0.358,
+        1.695
+      ],
+      "animations": [
+        "Idle",
+        "Celebrate"
+      ],
+      "triangles": 14768,
+      "bytes": 406704,
+      "source": "Original procedural meshes created for this project",
+      "license": "Original project assets; no external asset license. Reference photographs are excluded. No public distribution granted.",
+      "draft": true,
+      "notes": "Stylized likeness; unseen sides reconstructed. Hierarchical object animation, no skeleton."
+    },
+    {
+      "id": "jiyong",
+      "file": "assets/jiyong.glb",
+      "origin": "feet center",
+      "dimensionsBlenderXYZ": [
+        0.666,
+        0.343,
+        1.851
+      ],
+      "animations": [
+        "Idle",
+        "Celebrate"
+      ],
+      "triangles": 12272,
+      "bytes": 340548,
+      "source": "Original procedural meshes created for this project",
+      "license": "Original project assets; no external asset license. Reference photographs are excluded. No public distribution granted.",
+      "draft": true,
+      "notes": "Stylized likeness; unseen sides reconstructed. Hierarchical object animation, no skeleton."
+    },
+    {
+      "id": "younghyun",
+      "file": "assets/younghyun.glb",
+      "origin": "feet center",
+      "dimensionsBlenderXYZ": [
+        0.666,
+        0.358,
+        1.755
+      ],
+      "animations": [
+        "Idle",
+        "Celebrate"
+      ],
+      "triangles": 13964,
+      "bytes": 380308,
+      "source": "Original procedural meshes created for this project",
+      "license": "Original project assets; no external asset license. Reference photographs are excluded. No public distribution granted.",
+      "draft": true,
+      "notes": "Stylized likeness; unseen sides reconstructed. Hierarchical object animation, no skeleton."
+    },
+    {
+      "id": "toto",
+      "file": "assets/toto.glb",
+      "origin": "feet center",
+      "dimensionsBlenderXYZ": [
+        0.806,
+        1.313,
+        1.025
+      ],
+      "animations": [
+        "Idle",
+        "TailWag"
+      ],
+      "triangles": 10196,
+      "bytes": 274304,
+      "source": "Original procedural meshes created for this project",
+      "license": "Original project assets; no external asset license. Reference photographs are excluded. No public distribution granted.",
+      "draft": true,
+      "notes": "Stylized likeness; unseen sides reconstructed. Hierarchical object animation, no skeleton."
+    }
+  ]
+}
